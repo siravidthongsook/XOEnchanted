@@ -1,0 +1,653 @@
+@startuml
+class game.engine.IllegalActionException {
++ <<Create>> IllegalActionException(String)
++ <<Create>> IllegalActionException(String,Throwable)
+}
+
+class game.model.GameState {
++ {static} int BOARD_SIZE
+- CellType[][] board
+- Map<PlayerId,PlayerState> playerStates
+- PlayerId currentPlayer
+- int totalTurnCount
+- boolean suddenDeath
+- boolean gameOver
+- PlayerId winner
++ <<Create>> GameState()
++ PlayerId getCurrentPlayer()
++ int getTotalTurnCount()
++ boolean isSuddenDeath()
++ boolean isGameOver()
++ PlayerId getWinner()
++ PlayerState getPlayerState(PlayerId)
++ CellType getCell(Position)
++ void placePiece(Position,PlayerId)
++ void clearCell(Position)
++ boolean isInsideBoard(Position)
++ void incrementTurn()
++ void switchCurrentPlayer()
++ void setSuddenDeath(boolean)
++ void setWinner(PlayerId)
+- void validateInsideBoard(Position)
+}
+
+
+class game.engine.FrozenRuleService {
++ void updateAtEndOfTurn(GameState)
++ boolean isFrozenAt(GameState,int,int)
+}
+
+class game.ui.XOEnchantedApp {
++ void start(Stage)
++ {static} void main(String[])
+}
+
+class game.ui.GameOverDialog {
++ <<Create>> GameOverDialog(GameResult)
+}
+
+class game.model.Position {
+- int row
+- int col
++ <<Create>> Position(int,int)
++ int col()
++ int row()
+}
+
+
+class game.model.Line {
+- Position first
+- Position second
+- Position third
++ <<Create>> Line(Position,Position,Position)
++ List<Position> positions()
++ Position third()
++ Position second()
++ Position first()
+}
+
+
+class game.engine.LineDetector {
+- {static} List<Line> ALL_LINES
+- <<Create>> LineDetector()
++ {static} List<Line> detectLines(GameState,PlayerId)
++ {static} void resolveSelectedLine(GameState,Line)
+~ {static} List<Line> allLines()
+- {static} List<Line> precomputeLines()
+}
+
+
+class game.engine.PlaceActionValidator {
++ void validate(GameState,Action)
+}
+
+abstract class game.engine.ActionValidator {
++ {abstract}void validate(GameState,Action)
+# boolean hasEnoughEnergy(PlayerState,Action)
+}
+
+class game.ui.MainMenuController {
+- Stage stage
+- Scene scene
++ <<Create>> MainMenuController(Stage)
+- void initializeScene()
+- void handleNewGame()
+- void handleRules()
+- void handleSettings()
+- void handleExit()
++ Scene getScene()
+}
+
+
+interface game.model.Board {
+~ Cell getCell(Position)
+~ List<Position> getPieces(PlayerId)
+~ boolean isEmpty(Position)
+~ boolean isSealed(Position)
+~ List<ScoringLine> detectScoringLines(PlayerId)
+~ Board withCell(Position,Cell)
+~ Board withCellsRemoved(List<Position>)
+~ Board copy()
+}
+
+class game.ui.view.HudView {
+- Label currentPlayerLabel
+- Label turnLabel
+- Label scoreLabel
+- Label energyLabel
+- Label statusLabel
+- Label modeLabel
+- VBox node
++ <<Create>> HudView()
++ VBox node()
++ void showStatus(String)
++ void showPlacedAt(int,int)
++ void render(GameState,SkillMode)
+- String renderModeLabel(SkillMode)
+}
+
+
+class game.ui.view.BoardView {
+- Button[][] cells
+- GridPane node
++ <<Create>> BoardView(int,int,BiConsumer<Integer,Integer>)
++ GridPane node()
++ void render(GameState)
+- String renderCell(CellType)
+}
+
+
+class game.engine.SealAction {
+- PlayerId player
+- Position target
++ <<Create>> SealAction(PlayerId,Position)
++ int getEnergyCost()
++ PlayerId player()
++ Position target()
+}
+
+
+class game.model.ScoringLine {
+- Position pos1
+- Position pos2
+- Position pos3
+- LineType type
++ <<Create>> ScoringLine(Position,Position,Position,LineType)
++ List<Position> getPositions()
++ Position pos3()
++ Position pos2()
++ Position pos1()
++ LineType type()
+}
+
+
+class Main {
+- <<Create>> Main()
++ {static} void main(String[])
+}
+
+class game.ui.PlayerInfoPanel {
+- PlayerId playerId
+- Label nameLabel
+- Label scoreLabel
+- Label energyLabel
+- ProgressBar energyBar
+- Label statusLabel
++ <<Create>> PlayerInfoPanel(PlayerId)
++ void updatePlayerState(PlayerState)
++ void setActive(boolean)
+}
+
+
+class game.ui.BoardView {
+- CellView[][] cellViews
++ <<Create>> BoardView()
+- void initializeCells()
++ void updateBoard(Board)
++ void highlightCell(Position,String)
++ void clearHighlights()
++ void setCellClickHandler(CellClickHandler)
+}
+
+
+interface game.ui.BoardView$CellClickHandler {
+~ void onCellClicked(Position)
+}
+
+enum game.ui.SkillMode {
++  PLACE
++  SEAL
++  SHIFT
++  DISRUPT
++  DOUBLE_PLACE
+}
+
+class game.engine.ShiftActionValidator {
++ void validate(GameState,Action)
+}
+
+interface game.engine.action.SkillAction {
+~ boolean validate(GameState)
+~ void apply(GameState)
+}
+
+class game.engine.SealLifecycleService {
++ void updateAtEndOfTurn(GameState)
+}
+
+class game.engine.action.DisruptAction {
+- Position target
++ <<Create>> DisruptAction(Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position target()
+}
+
+
+class game.engine.DoublePlaceActionValidator {
++ void validate(GameState,Action)
+}
+
+class game.engine.RuleEngineImpl {
++ GameState applyTurnStartRules(GameState)
++ GameState applyAction(GameState,Action)
++ GameState applyTurnEndRules(GameState)
+- GameState handlePlaceAction(GameState,PlaceAction)
+- GameState handleShiftAction(GameState,ShiftAction)
+- GameState handleDisruptAction(GameState,DisruptAction)
+- GameState handleSealAction(GameState,SealAction)
+- GameState handleDoublePlaceAction(GameState,DoublePlaceAction)
+}
+
+class game.engine.BoardImpl {
+- Cell[][] cells
++ <<Create>> BoardImpl()
+- <<Create>> BoardImpl(Cell[][])
++ Cell getCell(Position)
++ List<Position> getPieces(PlayerId)
++ boolean isEmpty(Position)
++ boolean isSealed(Position)
++ List<ScoringLine> detectScoringLines(PlayerId)
++ Board withCell(Position,Cell)
++ Board withCellsRemoved(List<Position>)
++ Board copy()
+- List<ScoringLine> checkHorizontalLines(PlayerId)
+- List<ScoringLine> checkVerticalLines(PlayerId)
+- List<ScoringLine> checkDiagonalLines(PlayerId)
+}
+
+
+enum game.model.LineType {
++  HORIZONTAL
++  VERTICAL
++  DIAGONAL
+}
+
+class game.ui.SoundManager {
+- {static} SoundManager instance
+- AudioClip placeSound
+- AudioClip scoreSound
+- AudioClip shiftSound
+- AudioClip disruptSound
+- AudioClip sealSound
+- AudioClip errorSound
+- AudioClip gameOverSound
+- MediaPlayer bgMusicPlayer
+- double sfxVolume
+- double musicVolume
+- <<Create>> SoundManager()
++ {static} SoundManager getInstance()
+- void loadSounds()
++ void playPlaceSound()
++ void playScoreSound()
++ void playShiftSound()
++ void playDisruptSound()
++ void playSealSound()
++ void playErrorSound()
++ void playGameOverSound()
++ void startBackgroundMusic()
++ void stopBackgroundMusic()
++ void setSfxVolume(double)
++ void setMusicVolume(double)
+}
+
+
+enum game.model.CellType {
++  EMPTY
++  X
++  O
++  SEALED
++ {static} CellType fromPlayer(PlayerId)
+}
+
+
+class game.engine.ShiftAction {
+- PlayerId player
+- Position from
+- Position to
++ <<Create>> ShiftAction(PlayerId,Position,Position)
++ int getEnergyCost()
++ PlayerId player()
++ Position from()
++ Position to()
+}
+
+
+class game.ui.view.ActionBarView {
+- HBox node
++ <<Create>> ActionBarView(Runnable,Runnable,Runnable,Runnable,Runnable)
++ HBox node()
+}
+
+
+class game.ui.GameUiController {
+- GameEngine engine
+- SkillMode mode
++ <<Create>> GameUiController()
++ GameState state()
++ SkillMode mode()
++ void setMode(SkillMode)
++ void resetGame()
++ void onCellClicked(int,int)
+}
+
+
+class game.engine.action.SealAction {
+- Position target
++ <<Create>> SealAction(Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position target()
+}
+
+
+class game.ui.GameApplication {
+- {static} int CELL_SIZE
+- GameUiController controller
+- BoardView boardView
+- HudView hudView
++ {static} void main(String[])
++ void start(Stage)
+- void handleCellClick(int,int)
+- void onSealSelected()
+- void onShiftSelected()
+- void onDisruptSelected()
+- void onDoublePlaceSelected()
+- void onResetRequested()
+- void refreshView()
+}
+
+
+class game.ui.LineSelectionDialog {
++ <<Create>> LineSelectionDialog(List<ScoringLine>)
+}
+
+interface game.model.GameResult {
+}
+class game.model.GameResult$Victory {
+- PlayerId winner
+- VictoryType type
+~ <<Create>> Victory(PlayerId,VictoryType)
++ VictoryType type()
++ PlayerId winner()
+}
+
+
+class game.model.GameResult$SuddenDeath {
+~ <<Create>> SuddenDeath()
+}
+
+enum game.model.VictoryType {
++  SCORE_LIMIT
++  TURN_LIMIT
++  SUDDEN_DEATH
+}
+
+class game.model.PlayerState {
+- {static} int MAX_ENERGY
+- int score
+- int energy
+- boolean priorityTurn
++ <<Create>> PlayerState()
++ int getScore()
++ int getEnergy()
++ boolean isPriorityTurn()
++ void gainEnergy(int)
++ void spendEnergy(int)
++ void addScore(int)
++ void setPriorityTurn(boolean)
++ int consumeTurnStartGain()
+}
+
+
+class game.engine.action.DoublePlaceAction {
+- Position first
+- Position second
++ <<Create>> DoublePlaceAction(Position,Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position first()
++ Position second()
+}
+
+
+class game.engine.DoublePlaceAction {
+- PlayerId player
+- Position pos1
+- Position pos2
++ <<Create>> DoublePlaceAction(PlayerId,Position,Position)
++ int getEnergyCost()
++ Position pos2()
++ Position pos1()
++ PlayerId player()
+}
+
+
+class game.ui.GameLogView {
++ <<Create>> GameLogView()
++ void addEntry(String)
++ void clearLog()
+}
+
+class game.ui.ActionPanel {
+- Button placeButton
+- Button shiftButton
+- Button disruptButton
+- Button sealButton
+- Button doublePlaceButton
+- Button undoButton
++ <<Create>> ActionPanel()
++ void setActionHandlers(ActionHandler)
++ void updateButtonStates(int)
+}
+
+
+interface game.ui.ActionPanel$ActionHandler {
+~ void onPlaceAction()
+~ void onShiftAction()
+~ void onDisruptAction()
+~ void onSealAction()
+~ void onDoublePlaceAction()
+~ void onUndoAction()
+}
+
+class game.engine.action.ShiftAction {
+- Position from
+- Position to
++ <<Create>> ShiftAction(Position,Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position from()
++ Position to()
+}
+
+
+class game.engine.DisruptAction {
+- PlayerId player
+- Position target
++ <<Create>> DisruptAction(PlayerId,Position)
++ int getEnergyCost()
++ PlayerId player()
++ Position target()
+}
+
+
+interface game.engine.Action {
+~ PlayerId getPlayer()
+~ int getEnergyCost()
+}
+
+class game.engine.DisruptActionValidator {
++ void validate(GameState,Action)
+}
+
+class game.ui.RulesDialog {
++ <<Create>> RulesDialog()
+- String getRulesText()
+}
+
+enum game.model.GamePhase {
++  NORMAL
++  SUDDEN_DEATH
+}
+
+class game.ui.CellView {
+- Label contentLabel
+- Cell currentCell
++ <<Create>> CellView()
++ void updateCell(Cell)
++ Cell getCurrentCell()
++ void playPlaceAnimation()
++ void playRemoveAnimation()
+}
+
+
+class game.ui.SettingsDialog {
+- Slider sfxVolumeSlider
+- Slider musicVolumeSlider
++ <<Create>> SettingsDialog()
+}
+
+
+class game.ui.GameController {
+- Stage stage
+- GameEngine gameEngine
+- GameState currentState
+- Scene scene
+- BoardView boardView
+- PlayerInfoPanel playerXPanel
+- PlayerInfoPanel playerOPanel
+- ActionPanel actionPanel
+- GameLogView gameLogView
++ <<Create>> GameController(Stage)
+- void initializeScene()
+- void handleAction()
+- void updateUI()
+- void checkGameOver()
+- void handleReturnToMenu()
++ Scene getScene()
+}
+
+
+enum game.model.PlayerId {
++  X
++  O
++ PlayerId opponent()
+}
+
+
+class game.engine.SealActionValidator {
++ void validate(GameState,Action)
+}
+
+interface game.model.Cell {
+}
+class game.model.Cell$Empty {
+~ <<Create>> Empty()
+}
+
+class game.model.Cell$Piece {
+- PlayerId owner
+- int lastMovedTurn
+- boolean frozen
+~ <<Create>> Piece(PlayerId,int,boolean)
++ int lastMovedTurn()
++ PlayerId owner()
++ boolean frozen()
+}
+
+
+class game.model.Cell$Sealed {
+- int expiresAtTurn
+~ <<Create>> Sealed(int)
++ int expiresAtTurn()
+}
+
+
+abstract class game.engine.RuleEngine {
++ {abstract}GameState applyTurnStartRules(GameState)
++ {abstract}GameState applyAction(GameState,Action)
++ {abstract}GameState applyTurnEndRules(GameState)
++ GameState executeTurn(GameState,Action)
+}
+
+class game.engine.GameEngine {
+- {static} int WIN_SCORE
+- {static} int MAX_TURNS
+- GameState gameState
++ <<Create>> GameEngine()
++ GameState getGameState()
++ void playPlacementTurn(Position)
++ void useSealSkill(Position)
++ void useShiftSkill(Position,Position)
++ void useDisruptSkill(Position)
++ void useDoublePlaceSkill(Position,Position)
+- void startTurnGainEnergy(PlayerState)
+- boolean resolveScoring(PlayerId,PlayerState)
+- void endTurn(PlayerId,boolean)
+- void resolveTurnLimitResult()
+- void ensureGameIsActive()
+}
+
+
+class game.engine.PlaceAction {
+- PlayerId player
+- Position position
++ <<Create>> PlaceAction(PlayerId,Position)
++ int getEnergyCost()
++ PlayerId player()
++ Position position()
+}
+
+
+class game.engine.OverheatRuleService {
++ void applyPreGainAdjustment(GameState,PlayerId)
++ void updateTrackerAtEndOfTurn(GameState,PlayerId)
+}
+
+class game.engine.GameEngineImpl {
+- RuleEngine ruleEngine
+- List<ActionValidator> validators
++ <<Create>> GameEngineImpl()
+- List<ActionValidator> createValidators()
++ GameState startGame()
++ GameState executeAction(GameState,Action)
++ List<Action> getValidActions(GameState)
++ Optional<GameResult> checkGameOver(GameState)
+}
+
+
+
+
+game.engine.Exception <|-- game.engine.IllegalActionException
+javafx.application.Application <|-- game.ui.XOEnchantedApp
+javafx.scene.control.Alert <|-- game.ui.GameOverDialog
+game.engine.ActionValidator <|-- game.engine.PlaceActionValidator
+javafx.scene.layout.VBox <|-- game.ui.PlayerInfoPanel
+javafx.scene.layout.GridPane <|-- game.ui.BoardView
+game.ui.BoardView +.. game.ui.BoardView$CellClickHandler
+game.engine.ActionValidator <|-- game.engine.ShiftActionValidator
+game.engine.action.SkillAction <|.. game.engine.action.DisruptAction
+game.engine.ActionValidator <|-- game.engine.DoublePlaceActionValidator
+game.engine.RuleEngine <|-- game.engine.RuleEngineImpl
+game.engine.Board <|.. game.engine.BoardImpl
+game.engine.action.SkillAction <|.. game.engine.action.SealAction
+javafx.application.Application <|-- game.ui.GameApplication
+javafx.scene.control.Dialog <|-- game.ui.LineSelectionDialog
+game.model.GameResult +.. game.model.GameResult$Victory
+game.model.GameResult +.. game.model.GameResult$SuddenDeath
+game.engine.action.SkillAction <|.. game.engine.action.DoublePlaceAction
+javafx.scene.control.TextArea <|-- game.ui.GameLogView
+javafx.scene.layout.HBox <|-- game.ui.ActionPanel
+game.ui.ActionPanel +.. game.ui.ActionPanel$ActionHandler
+game.engine.action.SkillAction <|.. game.engine.action.ShiftAction
+game.engine.ActionValidator <|-- game.engine.DisruptActionValidator
+javafx.scene.control.Dialog <|-- game.ui.RulesDialog
+javafx.scene.layout.StackPane <|-- game.ui.CellView
+javafx.scene.control.Dialog <|-- game.ui.SettingsDialog
+game.engine.ActionValidator <|-- game.engine.SealActionValidator
+game.model.Cell +.. game.model.Cell$Empty
+game.model.Cell +.. game.model.Cell$Piece
+game.model.Cell +.. game.model.Cell$Sealed
+game.engine.GameEngine <|.. game.engine.GameEngineImpl
+@enduml

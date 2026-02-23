@@ -1,0 +1,77 @@
+/* XO Enchanted 4x4 - Main Stylesheet */
+
+/* Cell View */
+.cell-view {
+    -fx-border-color: #333333;
+    -fx-border-width: 2px;
+    -fx-background-color: #ffffff;
+    -fx-alignment: center;
+}
+
+.cell-view:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+.cell-view.empty {
+    -fx-background-color: #ffffff;
+}
+
+.cell-view.player-x {
+    -fx-background-color: #ffcccc;
+}
+
+.cell-view.player-o {
+    -fx-background-color: #ccccff;
+}
+
+.cell-view.sealed {
+    -fx-background-color: #cccccc;
+}
+
+.cell-view.frozen {
+    -fx-border-color: #00bfff;
+    -fx-border-width: 3px;
+}
+
+.cell-view.highlighted {
+    -fx-background-color: #ffff99;
+}
+
+/* Player Info Panel */
+.player-info-panel {
+    -fx-padding: 10px;
+    -fx-spacing: 8px;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1px;
+    -fx-background-color: #f5f5f5;
+}
+
+.player-info-panel.active-player {
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 3px;
+    -fx-background-color: #e8f5e9;
+}
+
+/* Action Panel */
+.action-panel {
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+    -fx-alignment: center;
+}
+
+.action-panel .button {
+    -fx-min-width: 120px;
+    -fx-font-size: 14px;
+}
+
+.action-panel .button:disabled {
+    -fx-opacity: 0.5;
+}
+
+/* Game Log */
+.game-log {
+    -fx-font-family: "Courier New", monospace;
+    -fx-font-size: 12px;
+}
+
+/* TODO: Add more styles for menus, dialogs, animations */
