@@ -39,10 +39,12 @@
     -fx-border-color: white;
     -fx-border-width: 0 2 2 0;
     -fx-border-style: segments(10, 10);
+}
+
+.piece-label {
     -fx-font-size: 70px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
-    -fx-padding: 0;
     -fx-alignment: center;
 }
 
@@ -72,6 +74,18 @@
 .board-cell-sealed {
     -fx-background-color: #444444;
     -fx-border-style: solid;
+}
+
+.board-cell-highlight {
+    -fx-background-color: rgba(0, 255, 255, 0.2);
+    -fx-border-color: cyan;
+    -fx-border-style: solid;
+}
+
+.board-cell-line-hover {
+    -fx-background-color: rgba(255, 255, 0, 0.4) !important;
+    -fx-border-color: yellow !important;
+    -fx-border-style: solid !important;
 }
 
 .main-board-container {

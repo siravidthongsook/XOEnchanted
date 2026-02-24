@@ -13,9 +13,14 @@ public class GameEngine {
     private static final int MAX_TURNS = 24;
 
     private final GameState gameState;
+    private GameEventListener eventListener;
 
     public GameEngine() {
         this.gameState = new GameState();
+    }
+
+    public void setEventListener(GameEventListener eventListener) {
+        this.eventListener = eventListener;
     }
 
     public GameState getGameState() {
@@ -24,16 +29,42 @@ public class GameEngine {
 
     public void playPlacementTurn(Position position) {
         ensureGameIsActive();
+        if (gameState.isWaitingForLineSelection()) {
+            throw new IllegalStateException("Waiting for line selection");
+        }
 
         PlayerId actor = gameState.getCurrentPlayer();
         PlayerState actorState = gameState.getPlayerState(actor);
 
         startTurnGainEnergy(actorState);
         gameState.placePiece(position, actor);
+        if (eventListener != null) {
+            eventListener.onPiecePlaced(position, actor);
+        }
 
         boolean scored = resolveScoring(actor, actorState);
 
-        endTurn(actor, scored);
+        if (!gameState.isWaitingForLineSelection()) {
+            endTurn(actor, scored);
+        }
+    }
+
+    public void selectLine(Line line) {
+        if (!gameState.isWaitingForLineSelection()) {
+            throw new IllegalStateException("Not waiting for line selection");
+        }
+        if (!gameState.getPendingLines().contains(line)) {
+            throw new IllegalArgumentException("Line not in pending lines");
+        }
+
+        PlayerId actor = gameState.getCurrentPlayer();
+        PlayerState actorState = gameState.getPlayerState(actor);
+
+        applyScoring(actor, actorState, line);
+        gameState.setWaitingForLineSelection(false);
+        gameState.setPendingLines(null);
+
+        endTurn(actor, true);
     }
 
     public void useSealSkill(Position position) {
@@ -64,14 +95,27 @@ public class GameEngine {
             return false;
         }
 
+        if (lines.size() > 1) {
+            gameState.setWaitingForLineSelection(true);
+            gameState.setPendingLines(lines);
+            if (eventListener != null) {
+                eventListener.onLineSelectionRequired(lines);
+            }
+            return false; // Turn hasn't "finished" scoring yet
+        }
+
+        applyScoring(actor, actorState, lines.get(0));
+        return true;
+    }
+
+    private void applyScoring(PlayerId actor, PlayerState actorState, Line selectedLine) {
         actorState.addScore(1);
-        Line selectedLine = lines.get(0);
         LineDetector.resolveSelectedLine(gameState, selectedLine);
+        if (eventListener != null) {
+            eventListener.onLineCleared(selectedLine);
+        }
         actorState.gainEnergy(1);
         gameState.getPlayerState(actor.opponent()).setPriorityTurn(true);
-
-        // TODO: let player choose a line when multiple lines exist.
-        return true;
     }
 
     private void endTurn(PlayerId actor, boolean scored) {

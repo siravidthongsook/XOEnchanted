@@ -14,6 +14,8 @@ public class GameState {
     private boolean suddenDeath;
     private boolean gameOver;
     private PlayerId winner;
+    private boolean waitingForLineSelection;
+    private java.util.List<Line> pendingLines;
 
     public GameState() {
         this.board = new CellType[BOARD_SIZE][BOARD_SIZE];
@@ -50,6 +52,22 @@ public class GameState {
 
     public PlayerId getWinner() {
         return winner;
+    }
+
+    public boolean isWaitingForLineSelection() {
+        return waitingForLineSelection;
+    }
+
+    public void setWaitingForLineSelection(boolean waitingForLineSelection) {
+        this.waitingForLineSelection = waitingForLineSelection;
+    }
+
+    public java.util.List<Line> getPendingLines() {
+        return pendingLines;
+    }
+
+    public void setPendingLines(java.util.List<Line> pendingLines) {
+        this.pendingLines = pendingLines;
     }
 
     public PlayerState getPlayerState(PlayerId playerId) {

@@ -1,6 +1,10 @@
 package game.ui;
 
 import game.model.GameState;
+import game.model.Position;
+import game.model.Line;
+import game.model.PlayerId;
+import game.engine.GameEventListener;
 import game.ui.view.ActionBarView;
 import game.ui.view.BoardView;
 import game.ui.view.HudView;
@@ -10,7 +14,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 
-public class GameApplication extends Application {
+import java.util.List;
+
+public class GameApplication extends Application implements GameEventListener {
     private static final int CELL_SIZE = 100;
 
     public static void main(String[] args) {
@@ -24,6 +30,7 @@ public class GameApplication extends Application {
     @Override
     public void start(Stage stage) {
         this.controller = new GameUiController();
+        this.controller.addEventListener(this);
         this.boardView = new BoardView(GameState.BOARD_SIZE, CELL_SIZE, this::handleCellClick);
         this.hudView = new HudView();
         ActionBarView actionBarView = new ActionBarView(
@@ -98,5 +105,20 @@ public class GameApplication extends Application {
 
         boardView.render(state);
         hudView.render(state, controller.mode());
+    }
+
+    @Override
+    public void onPiecePlaced(Position position, PlayerId playerId) {
+        boardView.animatePiecePlacement(position, playerId);
+    }
+
+    @Override
+    public void onLineCleared(Line line) {
+        boardView.animateLineClear(line);
+    }
+
+    @Override
+    public void onLineSelectionRequired(List<Line> lines) {
+        hudView.showStatus("Multiple lines detected! Select a line to clear.");
     }
 }
