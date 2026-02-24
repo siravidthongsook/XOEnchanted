@@ -60,20 +60,27 @@ public class BoardView {
                 StackPane cell = new StackPane();
                 cell.getStyleClass().add("board-cell");
                 
+                // Solid border for better alignment, balanced with padding to keep content centered
                 int right = (col == boardSize - 1) ? 0 : 2;
                 int bottom = (row == boardSize - 1) ? 0 : 2;
-                cell.setStyle("-fx-border-width: 0 " + right + " " + bottom + " 0;");
+                cell.setStyle(String.format("-fx-border-width: 0 %d %d 0; -fx-border-color: #333333; -fx-padding: %d 0 0 %d;", 
+                              right, bottom, bottom, right));
                 
                 cell.setMinSize(cellSize, cellSize);
                 cell.setMaxSize(cellSize, cellSize);
-                cell.setOnMouseClicked(event -> onCellClicked.accept(targetRow, targetCol));
-                
-                cell.setOnMouseEntered(event -> handleMouseEntered(targetRow, targetCol));
-                cell.setOnMouseExited(event -> handleMouseExited());
+                cell.setAlignment(javafx.geometry.Pos.CENTER);
 
                 Label pieceLabel = new Label();
                 pieceLabel.getStyleClass().add("piece-label");
+                pieceLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                pieceLabel.setAlignment(javafx.geometry.Pos.CENTER);
+                
                 cell.getChildren().add(pieceLabel);
+                StackPane.setAlignment(pieceLabel, javafx.geometry.Pos.CENTER);
+                
+                cell.setOnMouseClicked(event -> onCellClicked.accept(targetRow, targetCol));
+                cell.setOnMouseEntered(event -> handleMouseEntered(targetRow, targetCol));
+                cell.setOnMouseExited(event -> handleMouseExited());
 
                 cellContainers[row][col] = cell;
                 pieceLabels[row][col] = pieceLabel;
@@ -214,12 +221,16 @@ public class BoardView {
                 Position pos = new Position(row, col);
                 CellType cellType = state.getCell(pos);
 
-                // If cell is empty but still animating its removal, skip updating it
-                // so the fade-out animation can finish visually.
-                // However, if it's NOT empty (next player already moved here), render it immediately.
                 if (cellType == CellType.EMPTY && animatingPositions.contains(pos)) continue;
                 
-                pieceLabels[row][col].setText(renderCell(cellType));
+                Label label = pieceLabels[row][col];
+                label.setText(renderCell(cellType));
+                
+                // Set piece color based on player
+                label.getStyleClass().removeAll("hud-value-x", "hud-value-o");
+                if (cellType == CellType.X) label.getStyleClass().add("hud-value-x");
+                if (cellType == CellType.O) label.getStyleClass().add("hud-value-o");
+
                 cellContainers[row][col].setDisable(state.isGameOver());
                 
                 cellContainers[row][col].getStyleClass().removeAll("board-cell-sealed");

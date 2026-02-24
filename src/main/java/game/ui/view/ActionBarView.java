@@ -14,10 +14,10 @@ public class ActionBarView {
             Runnable onDoublePlace,
             Runnable onReset
     ) {
-        Button sealButton = new Button("Seal (TODO)");
-        Button shiftButton = new Button("Shift (TODO)");
-        Button disruptButton = new Button("Disrupt (TODO)");
-        Button doublePlaceButton = new Button("Double Place (TODO)");
+        Button sealButton = new Button("Seal");
+        Button shiftButton = new Button("Shift");
+        Button disruptButton = new Button("Disrupt");
+        Button doublePlaceButton = new Button("Double Place");
         Button resetButton = new Button("Reset");
 
         sealButton.setOnAction(event -> onSeal.run());

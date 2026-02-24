@@ -1,32 +1,53 @@
 .root {
-    -fx-background-color: black;
-    -fx-font-family: "Monospaced";
+    -fx-background-color: #0c0c0c;
+    -fx-font-family: "Silkscreen", "Monospaced";
 }
 
 .label {
     -fx-text-fill: #E0E0E0;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px; /* Increased from 14px */
 }
 
 .header-label {
-    -fx-font-size: 24px;
+    -fx-font-size: 32px; /* Increased from 24px */
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 0 0 15 0;
+}
+
+.hud-label-small {
+    -fx-font-size: 12px; /* Increased from 10px */
+    -fx-text-fill: #888888;
+    -fx-font-weight: bold;
+}
+
+.hud-value {
+    -fx-font-size: 18px; /* Increased from 14px */
+    -fx-text-fill: #39FF14; /* Neon Green */
+}
+
+.hud-value-x {
+    -fx-text-fill: #FF7F7F; /* Soft Coral Red */
+}
+
+.hud-value-o {
+    -fx-text-fill: #00FFFF; /* Neon Cyan */
 }
 
 .button {
-    -fx-background-color: black;
+    -fx-background-color: #1a1a1a;
     -fx-text-fill: white;
-    -fx-border-color: white;
-    -fx-border-width: 3;
+    -fx-border-color: #333333;
+    -fx-border-width: 2;
     -fx-border-radius: 0;
     -fx-background-radius: 0;
-    -fx-font-weight: bold;
-    -fx-padding: 8 16;
+    -fx-font-size: 14px; /* Increased from 10px */
+    -fx-padding: 10 16;
 }
 
 .button:hover {
     -fx-background-color: #333333;
+    -fx-border-color: #ffffff;
 }
 
 .button:pressed {
@@ -34,93 +55,71 @@
     -fx-text-fill: black;
 }
 
+.hud-container {
+    -fx-padding: 40; /* Increased padding */
+    -fx-spacing: 25; /* Increased spacing */
+    -fx-border-color: #333333;
+    -fx-border-width: 0 0 0 2;
+    -fx-background-color: #0c0c0c;
+}
+
+.action-bar {
+    -fx-padding: 25;
+    -fx-spacing: 15;
+    -fx-alignment: center;
+    -fx-border-color: #333333;
+    -fx-border-width: 2 0 0 0;
+}
+
 .board-cell {
     -fx-background-color: transparent;
-    -fx-border-color: white;
+    -fx-border-color: #444444;
     -fx-border-width: 0 2 2 0;
-    -fx-border-style: segments(10, 10);
-}
-
-.piece-label {
-    -fx-font-size: 70px;
-    -fx-font-weight: bold;
-    -fx-text-fill: white;
-    -fx-alignment: center;
-}
-
-.board-cell:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-}
-
-.main-board-container {
-    -fx-border-color: white;
-    -fx-border-width: 6;
-    -fx-padding: 6;
-    -fx-background-color: black;
-}
-
-.inner-board-container {
-    -fx-border-color: white;
-    -fx-border-width: 2;
-    -fx-padding: 0;
     -fx-border-style: solid;
 }
-
 
 .board-cell:hover {
     -fx-background-color: rgba(255, 255, 255, 0.05);
 }
 
-.board-cell-sealed {
-    -fx-background-color: #444444;
-    -fx-border-style: solid;
-}
-
-.board-cell-highlight {
-    -fx-background-color: rgba(0, 255, 255, 0.2);
-    -fx-border-color: cyan;
-    -fx-border-style: solid;
-}
-
-.board-cell-line-hover {
-    -fx-background-color: rgba(255, 255, 0, 0.4) !important;
-    -fx-border-color: yellow !important;
-    -fx-border-style: solid !important;
+.piece-label {
+    -fx-font-size: 65px; /* Slightly larger for better fill */
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 .main-board-container {
-    -fx-border-color: white;
+    -fx-border-color: #333333;
     -fx-border-width: 4;
     -fx-padding: 4;
     -fx-background-color: #080808;
 }
 
 .inner-board-container {
-    -fx-border-color: white;
+    -fx-border-color: #333333;
     -fx-border-width: 2;
-    -fx-padding: 10;
+    -fx-padding: 0;
+    -fx-border-style: solid;
 }
 
-.hud-container {
-    -fx-padding: 30;
-    -fx-spacing: 20;
-    -fx-border-color: white;
-    -fx-border-width: 0 0 0 4;
-    -fx-background-color: #050505;
+.board-cell-sealed {
+    -fx-background-color: #222222;
 }
 
-.action-bar {
-    -fx-padding: 20;
-    -fx-spacing: 15;
-    -fx-alignment: center;
-    -fx-border-color: white;
-    -fx-border-width: 4 0 0 0;
+.board-cell-highlight {
+    -fx-background-color: rgba(0, 255, 255, 0.1);
+    -fx-border-color: cyan !important;
+    -fx-border-width: 2 !important;
+    -fx-border-style: solid !important;
 }
 
-
-.action-bar {
-    -fx-padding: 10;
-    -fx-spacing: 10;
+.board-cell-line-hover {
+    -fx-background-color: rgba(255, 255, 0, 0.15) !important;
+    -fx-border-color: yellow !important;
+    -fx-border-width: 2 !important;
+    -fx-border-style: solid !important;
+    -fx-effect: innershadow(gaussian, rgba(255, 255, 0, 0.5), 10, 0, 0, 0);
 }
 
 .strike-line {

@@ -12,12 +12,14 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.geometry.Insets;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.List;
 
 public class GameApplication extends Application implements GameEventListener {
     private static final int CELL_SIZE = 100;
+    private static final String FONT_URL = "https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/Silkscreen-Regular.ttf";
 
     public static void main(String[] args) {
         Application.launch(GameApplication.class, args);
@@ -29,6 +31,8 @@ public class GameApplication extends Application implements GameEventListener {
 
     @Override
     public void start(Stage stage) {
+        // Load custom font from web
+        Font.loadFont(FONT_URL, 12);
         this.controller = new GameUiController();
         this.controller.addEventListener(this);
         this.boardView = new BoardView(GameState.BOARD_SIZE, CELL_SIZE, this::handleCellClick);
@@ -50,11 +54,12 @@ public class GameApplication extends Application implements GameEventListener {
 
         refreshView();
 
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 1100, 800);
         String css = getClass().getResource("/style.css").toExternalForm();
         scene.getStylesheets().add(css);
         stage.setTitle("XO Enchanted 4x4");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
@@ -96,6 +101,7 @@ public class GameApplication extends Application implements GameEventListener {
 
     private void onResetRequested() {
         controller = new GameUiController();
+        controller.addEventListener(this);
         hudView.showStatus("Status: new game started");
         refreshView();
     }
