@@ -3,28 +3,36 @@ package game.ui.view;
 import game.model.CellType;
 import game.model.GameState;
 import game.model.Position;
-import game.model.Line;
 import game.model.PlayerId;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.animation.KeyValue;
+import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import java.util.function.BiConsumer;
 
 public class BoardView {
     private final StackPane[][] cellContainers;
     private final Label[][] pieceLabels;
     private final GridPane grid;
+    private final Pane overlayPane;
     private final StackPane node;
-    private java.util.List<Line> currentPendingLines;
+    private final int cellSize;
+    private java.util.List<game.model.Line> currentPendingLines;
     private Position lastHoveredPos;
+    private final java.util.Set<Position> animatingPositions = new java.util.HashSet<>();
 
     public BoardView(int boardSize, int cellSize, BiConsumer<Integer, Integer> onCellClicked) {
+        this.cellSize = cellSize;
         this.cellContainers = new StackPane[boardSize][boardSize];
         this.pieceLabels = new Label[boardSize][boardSize];
         this.grid = new GridPane();
@@ -32,7 +40,11 @@ public class BoardView {
         this.grid.setHgap(0); 
         this.grid.setVgap(0);
         
-        StackPane innerContainer = new StackPane(grid);
+        this.overlayPane = new Pane();
+        this.overlayPane.setMouseTransparent(true);
+        this.overlayPane.setPickOnBounds(false);
+
+        StackPane innerContainer = new StackPane(grid, overlayPane);
         innerContainer.getStyleClass().add("inner-board-container");
         innerContainer.setMaxSize(StackPane.USE_PREF_SIZE, StackPane.USE_PREF_SIZE);
 
@@ -91,7 +103,7 @@ public class BoardView {
         if (currentPendingLines == null || currentPendingLines.isEmpty()) return;
 
         // Apply cyan highlights for all pending lines
-        for (Line line : currentPendingLines) {
+        for (game.model.Line line : currentPendingLines) {
             for (Position p : line.positions()) {
                 cellContainers[p.row()][p.col()].getStyleClass().add("board-cell-highlight");
             }
@@ -99,7 +111,7 @@ public class BoardView {
 
         // Apply yellow highlight for the hovered line
         if (lastHoveredPos != null) {
-            for (Line line : currentPendingLines) {
+            for (game.model.Line line : currentPendingLines) {
                 if (line.positions().contains(lastHoveredPos)) {
                     for (Position p : line.positions()) {
                         // Remove cyan and add yellow
@@ -124,21 +136,70 @@ public class BoardView {
         st.play();
     }
 
-    public void animateLineClear(Line line) {
-        SequentialTransition seq = new SequentialTransition();
-        for (Position pos : line.positions()) {
-            Label label = pieceLabels[pos.row()][pos.col()];
+    public void animateLineClear(game.model.Line line) {
+        Position startPos = line.first();
+        Position endPos = line.third();
+        
+        animatingPositions.addAll(line.positions());
+
+        // Calculate center coordinates for the line
+        double startX = startPos.col() * cellSize + cellSize / 2.0;
+        double startY = startPos.row() * cellSize + cellSize / 2.0;
+        double endX = endPos.col() * cellSize + cellSize / 2.0;
+        double endY = endPos.row() * cellSize + cellSize / 2.0;
+
+        javafx.scene.shape.Line strikeLine = new javafx.scene.shape.Line(startX, startY, startX, startY);
+        strikeLine.getStyleClass().add("strike-line");
+        overlayPane.getChildren().add(strikeLine);
+
+        // Animate the line drawing
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.ZERO, 
+                new KeyValue(strikeLine.endXProperty(), startX),
+                new KeyValue(strikeLine.endYProperty(), startY)
+            ),
+            new KeyFrame(Duration.millis(300),
+                new KeyValue(strikeLine.endXProperty(), endX),
+                new KeyValue(strikeLine.endYProperty(), endY)
+            )
+        );
+
+        timeline.setOnFinished(e -> {
+            // Fade out the pieces and then the strike line immediately after drawing
+            SequentialTransition seq = new SequentialTransition();
             
-            FadeTransition ft = new FadeTransition(Duration.millis(300), label);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.0);
-            ft.setOnFinished(e -> {
-                label.setText("");
-                label.setOpacity(1.0);
+            // Fade out pieces and line in parallel
+            javafx.animation.ParallelTransition fadeAll = new javafx.animation.ParallelTransition();
+
+            for (Position pos : line.positions()) {
+                Label label = pieceLabels[pos.row()][pos.col()];
+                FadeTransition ft = new FadeTransition(Duration.millis(300), label);
+                ft.setFromValue(1.0);
+                ft.setToValue(0.0);
+                fadeAll.getChildren().add(ft);
+            }
+
+            FadeTransition lineFade = new FadeTransition(Duration.millis(300), strikeLine);
+            lineFade.setFromValue(1.0);
+            lineFade.setToValue(0.0);
+            fadeAll.getChildren().add(lineFade);
+            
+            seq.getChildren().add(fadeAll);
+
+            seq.setOnFinished(ev -> {
+                for (Position pos : line.positions()) {
+                    Label label = pieceLabels[pos.row()][pos.col()];
+                    label.setText("");
+                    label.setOpacity(1.0);
+                    animatingPositions.remove(pos);
+                }
+                overlayPane.getChildren().remove(strikeLine);
             });
-            seq.getChildren().add(ft);
-        }
-        seq.play();
+            
+            seq.play();
+        });
+
+        timeline.play();
     }
 
     public StackPane node() {
@@ -152,6 +213,12 @@ public class BoardView {
             for (int col = 0; col < GameState.BOARD_SIZE; col++) {
                 Position pos = new Position(row, col);
                 CellType cellType = state.getCell(pos);
+
+                // If cell is empty but still animating its removal, skip updating it
+                // so the fade-out animation can finish visually.
+                // However, if it's NOT empty (next player already moved here), render it immediately.
+                if (cellType == CellType.EMPTY && animatingPositions.contains(pos)) continue;
+                
                 pieceLabels[row][col].setText(renderCell(cellType));
                 cellContainers[row][col].setDisable(state.isGameOver());
                 

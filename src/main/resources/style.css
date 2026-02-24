@@ -122,3 +122,10 @@
     -fx-padding: 10;
     -fx-spacing: 10;
 }
+
+.strike-line {
+    -fx-stroke: white;
+    -fx-stroke-width: 8;
+    -fx-stroke-line-cap: round;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 10, 0, 0, 0);
+}
