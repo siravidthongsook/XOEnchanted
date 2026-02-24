@@ -26,8 +26,8 @@ public class ActionBarView {
         doublePlaceButton.setOnAction(event -> onDoublePlace.run());
         resetButton.setOnAction(event -> onReset.run());
 
-        this.node = new HBox(8, sealButton, shiftButton, disruptButton, doublePlaceButton, resetButton);
-        this.node.setPadding(new Insets(16, 0, 0, 0));
+        this.node = new HBox(12, sealButton, shiftButton, disruptButton, doublePlaceButton, resetButton);
+        this.node.getStyleClass().add("action-bar");
     }
 
     public HBox node() {

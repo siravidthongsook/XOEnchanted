@@ -24,8 +24,11 @@ public class HudView {
         this.statusLabel = new Label();
         this.modeLabel = new Label("Mode: PLACE");
 
-        this.node = new VBox(10,
-                new Label("XO Enchanted 4x4"),
+        Label titleLabel = new Label("XO ENCHANTED 4x4");
+        titleLabel.getStyleClass().add("header-label");
+
+        this.node = new VBox(15,
+                titleLabel,
                 modeLabel,
                 currentPlayerLabel,
                 turnLabel,
@@ -33,7 +36,8 @@ public class HudView {
                 energyLabel,
                 statusLabel
         );
-        this.node.setPadding(new Insets(8, 0, 0, 20));
+        this.node.getStyleClass().add("hud-container");
+        this.node.setMinWidth(250);
     }
 
     public VBox node() {

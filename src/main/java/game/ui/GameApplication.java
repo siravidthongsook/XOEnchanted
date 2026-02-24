@@ -11,7 +11,7 @@ import javafx.geometry.Insets;
 import javafx.stage.Stage;
 
 public class GameApplication extends Application {
-    private static final int CELL_SIZE = 72;
+    private static final int CELL_SIZE = 100;
 
     public static void main(String[] args) {
         Application.launch(GameApplication.class, args);
@@ -43,7 +43,9 @@ public class GameApplication extends Application {
 
         refreshView();
 
-        Scene scene = new Scene(root, 860, 520);
+        Scene scene = new Scene(root, 900, 600);
+        String css = getClass().getResource("/style.css").toExternalForm();
+        scene.getStylesheets().add(css);
         stage.setTitle("XO Enchanted 4x4");
         stage.setScene(scene);
         stage.show();
