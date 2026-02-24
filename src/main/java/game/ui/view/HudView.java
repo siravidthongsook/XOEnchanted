@@ -3,118 +3,107 @@ package game.ui.view;
 import game.model.GameState;
 import game.model.PlayerId;
 import game.ui.SkillMode;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class HudView {
-    private final Label currentPlayerLabel;
-    private final Label turnLabel;
-    private final Label scoreXLabel;
-    private final Label scoreOLabel;
-    private final Label energyXLabel;
-    private final Label energyOLabel;
+    private final BorderPane node;
+    private final HBox scoreXBox;
+    private final HBox energyXBox;
+    private final HBox scoreOBox;
+    private final HBox energyOBox;
     private final Label statusLabel;
     private final Label modeLabel;
-    private final VBox node;
+
+    // เพิ่ม Label สำหรับบอกเทิร์นและผู้เล่น
+    private final Label currentPlayerLabel;
+    private final Label turnLabel;
 
     public HudView() {
-        Label titleLabel = new Label("XO ENCHANTED");
-        titleLabel.getStyleClass().add("header-label");
+        Label xIcon = new Label();
+        xIcon.getStyleClass().addAll("piece-x", "top-icon");
+        scoreXBox = new HBox(4);
+        energyXBox = new HBox(4);
+        VBox xBars = new VBox(6, scoreXBox, energyXBox);
+        xBars.setAlignment(Pos.CENTER_LEFT);
+        HBox xPlayerStats = new HBox(15, xIcon, xBars);
+        xPlayerStats.setAlignment(Pos.CENTER_LEFT);
 
-        this.modeLabel = createLabel("Mode: PLACE", "hud-value");
-        this.currentPlayerLabel = createLabel("Player: X", "hud-value-x");
-        this.turnLabel = createLabel("Turn: 1", "hud-label-small");
+        Label oIcon = new Label();
+        oIcon.getStyleClass().addAll("piece-o", "top-icon");
+        scoreOBox = new HBox(4);
+        energyOBox = new HBox(4);
+        VBox oBars = new VBox(6, scoreOBox, energyOBox);
+        oBars.setAlignment(Pos.CENTER_RIGHT);
+        HBox oPlayerStats = new HBox(15, oBars, oIcon);
+        oPlayerStats.setAlignment(Pos.CENTER_RIGHT);
 
-        // Player X Stats
-        VBox xStats = createPlayerStatBox("PLAYER X", "hud-value-x");
-        this.scoreXLabel = createLabel("Score: 0", "hud-value-x");
-        this.energyXLabel = createLabel("Energy: 0", "hud-value-x");
-        xStats.getChildren().addAll(scoreXLabel, energyXLabel);
+        // Center Info
+        modeLabel = new Label("MODE: PLACE");
+        modeLabel.getStyleClass().add("hud-value");
 
-        // Player O Stats
-        VBox oStats = createPlayerStatBox("PLAYER O", "hud-value-o");
-        this.scoreOLabel = createLabel("Score: 0", "hud-value-o");
-        this.energyOLabel = createLabel("Energy: 0", "hud-value-o");
-        oStats.getChildren().addAll(scoreOLabel, energyOLabel);
+        currentPlayerLabel = new Label("PLAYER: X");
+        currentPlayerLabel.getStyleClass().add("hud-value-x");
 
-        this.statusLabel = createLabel("", "hud-label-small");
-        this.statusLabel.setWrapText(true);
-        this.statusLabel.setMaxWidth(200);
+        turnLabel = new Label("TURN: 0 / 24");
+        turnLabel.getStyleClass().add("hud-label-small");
 
-        this.node = new VBox(20,
-                titleLabel,
-                new VBox(5, createLabel("GAME INFO", "hud-label-small"), modeLabel, currentPlayerLabel, turnLabel),
-                xStats,
-                oStats,
-                new VBox(5, createLabel("LOG", "hud-label-small"), statusLabel)
-        );
-        this.node.getStyleClass().add("hud-container");
-        this.node.setPadding(new Insets(30));
-        this.node.setMinWidth(280);
+        statusLabel = new Label("");
+        statusLabel.getStyleClass().add("status-label");
+
+        VBox centerBox = new VBox(5, modeLabel, currentPlayerLabel, turnLabel, statusLabel);
+        centerBox.setAlignment(Pos.CENTER);
+
+        node = new BorderPane();
+        node.setLeft(xPlayerStats);
+        node.setCenter(centerBox);
+        node.setRight(oPlayerStats);
+        node.getStyleClass().add("top-hud-container");
     }
 
-    private Label createLabel(String text, String styleClass) {
-        Label label = new Label(text);
-        label.getStyleClass().add(styleClass);
-        return label;
-    }
-
-    private VBox createPlayerStatBox(String title, String titleStyleClass) {
-        Label l = new Label(title);
-        l.getStyleClass().add("hud-label-small");
-        l.setStyle("-fx-font-size: 8px;");
-        VBox box = new VBox(8, l);
-        box.setStyle("-fx-border-color: #333333; -fx-border-width: 0 0 0 2; -fx-padding: 0 0 0 10;");
-        return box;
-    }
-
-    public VBox node() {
-        return node;
-    }
-
-    public void showStatus(String status) {
-        statusLabel.setText(status);
-    }
-
-    public void showPlacedAt(int row, int col) {
-        statusLabel.setText("Placed at (" + row + ", " + col + ")");
-    }
+    public BorderPane node() { return node; }
+    public void showStatus(String status) { statusLabel.setText(status); }
 
     public void render(GameState state, SkillMode mode) {
-        modeLabel.setText(renderModeLabel(mode));
-        PlayerId current = state.getCurrentPlayer();
-        currentPlayerLabel.setText("Player: " + current);
+        modeLabel.setText("MODE: " + mode.name());
+
+        // อัปเดตผู้เล่นปัจจุบัน
+        currentPlayerLabel.setText("CURRENT PLAYER: " + state.getCurrentPlayer());
         currentPlayerLabel.getStyleClass().removeAll("hud-value-x", "hud-value-o");
-        currentPlayerLabel.getStyleClass().add(current == PlayerId.X ? "hud-value-x" : "hud-value-o");
+        currentPlayerLabel.getStyleClass().add(state.getCurrentPlayer() == PlayerId.X ? "hud-value-x" : "hud-value-o");
 
-        turnLabel.setText("Turn: " + state.getTotalTurnCount());
+        // อัปเดตจำนวนเทิร์น
+        turnLabel.setText("TURN: " + state.getTotalTurnCount() + " / 24");
 
-        scoreXLabel.setText("Score: " + state.getPlayerState(PlayerId.X).getScore());
-        energyXLabel.setText("Energy: " + state.getPlayerState(PlayerId.X).getEnergy());
-
-        scoreOLabel.setText("Score: " + state.getPlayerState(PlayerId.O).getScore());
-        energyOLabel.setText("Energy: " + state.getPlayerState(PlayerId.O).getEnergy());
+        int maxScore = 5;
+        int maxEnergy = 10;
+        updateBars(scoreXBox, state.getPlayerState(PlayerId.X).getScore(), maxScore);
+        updateBars(energyXBox, state.getPlayerState(PlayerId.X).getEnergy(), maxEnergy);
+        updateBars(scoreOBox, state.getPlayerState(PlayerId.O).getScore(), maxScore);
+        updateBars(energyOBox, state.getPlayerState(PlayerId.O).getEnergy(), maxEnergy);
 
         if (state.isGameOver()) {
-            statusLabel.setText("GAME OVER! WINNER: " + state.getWinner());
-            statusLabel.setStyle("-fx-text-fill: yellow;");
+            statusLabel.setText("GAME OVER!");
         } else if (state.isSuddenDeath()) {
             statusLabel.setText("SUDDEN DEATH ACTIVE!");
             statusLabel.setStyle("-fx-text-fill: orange;");
+        } else {
+            statusLabel.setText(""); // ล้างข้อความถ้าไม่ได้จบเกม
         }
     }
 
-    private String renderModeLabel(SkillMode mode) {
-        return switch (mode) {
-            case PLACE -> "PLACE";
-            case SEAL -> "SEAL";
-            case SHIFT -> "SHIFT";
-            case DISRUPT -> "DISRUPT";
-            case DOUBLE_PLACE -> "DOUBLE PLACE";
-        };
+    private void updateBars(HBox container, int currentVal, int maxVal) {
+        container.getChildren().clear();
+        int displayVal = Math.min(currentVal, maxVal);
+        for (int i = 0; i < maxVal; i++) {
+            Region block = new Region();
+            block.getStyleClass().add("stat-block");
+            if (i < displayVal) block.getStyleClass().add("stat-block-filled");
+            container.getChildren().add(block);
+        }
     }
 }
-

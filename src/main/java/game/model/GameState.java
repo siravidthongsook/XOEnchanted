@@ -1,6 +1,7 @@
 package game.model;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class GameState {
@@ -8,6 +9,7 @@ public class GameState {
 
     private final CellType[][] board;
     private final Map<PlayerId, PlayerState> playerStates;
+    private final Map<Position, Integer> sealExpirations; // เก็บข้อมูลเทิร์นที่ช่องจะปลดล็อก
 
     private PlayerId currentPlayer;
     private int totalTurnCount;
@@ -27,6 +29,8 @@ public class GameState {
         this.playerStates = new EnumMap<>(PlayerId.class);
         this.playerStates.put(PlayerId.X, new PlayerState());
         this.playerStates.put(PlayerId.O, new PlayerState());
+        this.sealExpirations = new HashMap<>(); // เริ่มต้น Map
+
         this.currentPlayer = PlayerId.X;
         this.totalTurnCount = 0;
         this.suddenDeath = false;
@@ -91,6 +95,26 @@ public class GameState {
         validateInsideBoard(position);
         board[position.row()][position.col()] = CellType.EMPTY;
     }
+
+    // --- ระบบจัดการ Seal ---
+    public Map<Position, Integer> getSealExpirations() {
+        return sealExpirations;
+    }
+
+    public void sealCell(Position position, int expiryTurn) {
+        validateInsideBoard(position);
+        board[position.row()][position.col()] = CellType.SEALED;
+        sealExpirations.put(position, expiryTurn);
+    }
+
+    public void unsealCell(Position position) {
+        validateInsideBoard(position);
+        if (board[position.row()][position.col()] == CellType.SEALED) {
+            board[position.row()][position.col()] = CellType.EMPTY;
+        }
+        sealExpirations.remove(position);
+    }
+    // ----------------------
 
     public boolean isInsideBoard(Position position) {
         return position.row() >= 0

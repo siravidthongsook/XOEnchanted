@@ -1,25 +1,28 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.1.0'
+    // อัปเกรดเวอร์ชันปลั๊กอิน JavaFX เพื่อให้รองรับ Java รุ่นใหม่
+    id 'org.openjfx.javafxplugin' version '0.1.0' 
 }
 
 group = 'progmeth_2025_1'
 version = '1.0-SNAPSHOT'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+    // ลบท่อน toolchain ออก เพื่อให้ใช้ Java 24 ในเครื่องคุณรันได้เลย
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 application {
+    // ระบุ Main Class ให้ตรงกับไฟล์ Main.java ในโปรเจกต์ของคุณ
     mainClass = 'Main'
 }
 
 javafx {
+    // อัปเกรดเวอร์ชัน JavaFX เป็นรุ่นที่เสถียรสำหรับ Mac M1/M2/M3 (aarch64)
     version = '21.0.6'
-    modules = ['javafx.controls']
+    modules = ['javafx.controls', 'javafx.fxml'] // เพิ่ม fxml เผื่อไว้
 }
 
 repositories {

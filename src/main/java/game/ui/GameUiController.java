@@ -13,12 +13,14 @@ import java.util.List;
 public class GameUiController implements GameEventListener {
     private final GameEngine engine;
     private SkillMode mode;
+    private Position firstSelection; // เพิ่มตัวแปรจำค่าคลิกแรก
     private final List<GameEventListener> listeners = new java.util.ArrayList<>();
 
     public GameUiController() {
         this.engine = new GameEngine();
         this.engine.setEventListener(this);
         this.mode = SkillMode.PLACE;
+        this.firstSelection = null;
     }
 
     public void addEventListener(GameEventListener listener) {
@@ -40,20 +42,15 @@ public class GameUiController implements GameEventListener {
         listeners.forEach(l -> l.onLineSelectionRequired(lines));
     }
 
-    public GameState state() {
-        return engine.getGameState();
-    }
-
-    public SkillMode mode() {
-        return mode;
-    }
+    public GameState state() { return engine.getGameState(); }
+    public SkillMode mode() { return mode; }
 
     public void setMode(SkillMode mode) {
         this.mode = Objects.requireNonNull(mode, "mode cannot be null");
+        this.firstSelection = null; // รีเซ็ตการคลิกทุกครั้งที่เปลี่ยนโหมด
     }
 
     public void resetGame() {
-        // TODO: keep selected mode while resetting if preferred by UX.
         throw new UnsupportedOperationException("TODO: implement GameUiController.resetGame");
     }
 
@@ -63,13 +60,32 @@ public class GameUiController implements GameEventListener {
             return;
         }
 
-        if (mode == SkillMode.PLACE) {
-            engine.playPlacementTurn(new Position(row, col));
-            return;
-        }
+        Position clickedPos = new Position(row, col);
 
-        // TODO: implement selection flow for each skill mode.
-        throw new UnsupportedOperationException("TODO: implement skill mode click flow");
+        if (mode == SkillMode.PLACE) {
+            engine.playPlacementTurn(clickedPos);
+        } else if (mode == SkillMode.SEAL) {
+            engine.useSealSkill(clickedPos);
+            setMode(SkillMode.PLACE);
+        } else if (mode == SkillMode.DISRUPT) {
+            engine.useDisruptSkill(clickedPos);
+            setMode(SkillMode.PLACE);
+        } else if (mode == SkillMode.SHIFT) {
+            if (firstSelection == null) {
+                firstSelection = clickedPos; // จำตำแหน่งแรก
+                // คุณสามารถใส่โค้ดให้ UI แสดงแสงไฮไลท์ที่ช่องแรกได้ถ้าต้องการ
+            } else {
+                engine.useShiftSkill(firstSelection, clickedPos);
+                setMode(SkillMode.PLACE);
+            }
+        } else if (mode == SkillMode.DOUBLE_PLACE) {
+            if (firstSelection == null) {
+                firstSelection = clickedPos; // จำตำแหน่งแรก
+            } else {
+                engine.useDoublePlaceSkill(firstSelection, clickedPos);
+                setMode(SkillMode.PLACE);
+            }
+        }
     }
 
     private void handleLineSelection(int row, int col) {
