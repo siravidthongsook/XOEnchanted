@@ -16,6 +16,11 @@ public class GameState {
     private PlayerId winner;
     private boolean waitingForLineSelection;
     private java.util.List<Line> pendingLines;
+    private boolean turnEnded;
+    private final java.util.Map<Position, Integer> activeSeals = new java.util.HashMap<>();
+    private final java.util.Set<Position> frozenCells = new java.util.HashSet<>();
+    private final java.util.Map<Position, Integer> pieceInactivityCounters = new java.util.HashMap<>();
+    private boolean turnStarted = false;
 
     public GameState() {
         this.board = new CellType[BOARD_SIZE][BOARD_SIZE];
@@ -32,6 +37,7 @@ public class GameState {
         this.suddenDeath = false;
         this.gameOver = false;
         this.winner = null;
+        this.turnEnded = false;
     }
 
     public PlayerId getCurrentPlayer() {
@@ -79,6 +85,11 @@ public class GameState {
         return board[position.row()][position.col()];
     }
 
+    public void setCell(Position position, CellType cell) {
+        validateInsideBoard(position);
+        board[position.row()][position.col()] = cell;
+    }
+
     public void placePiece(Position position, PlayerId playerId) {
         validateInsideBoard(position);
         if (board[position.row()][position.col()] != CellType.EMPTY) {
@@ -121,4 +132,52 @@ public class GameState {
             throw new IllegalArgumentException("Position is out of board bounds");
         }
     }
+
+    public boolean isTurnEnded() {
+        return turnEnded;
+    }
+
+    public void setTurnEnded(boolean turnEnded) {
+        this.turnEnded = turnEnded;
+    }
+
+    public void addSeal(Position position, int expiryTurn) {
+        activeSeals.put(position, expiryTurn);
+    }
+
+    public java.util.Map<Position, Integer> getActiveSeals() {
+        return activeSeals;
+    }
+
+    public void removeSeal(Position position) {
+        activeSeals.remove(position);
+    }
+
+    public boolean isFrozen(Position position) {
+        return frozenCells.contains(position);
+    }
+
+    public void addFrozenCell(Position position) {
+        frozenCells.add(position);
+    }
+
+    public void removeFrozenCell(Position position) {
+        frozenCells.remove(position);
+    }
+
+    public int getPieceInactivity(Position position) {
+        return pieceInactivityCounters.getOrDefault(position, 0);
+    }
+
+    public void setPieceInactivity(Position position, int turns) {
+        pieceInactivityCounters.put(position, turns);
+    }
+
+    public void clearPieceMetadata(Position position) {
+        pieceInactivityCounters.remove(position);
+        frozenCells.remove(position); // Ensure frozen status is also cleared if the piece is destroyed
+    }
+
+    public boolean isTurnStarted() { return turnStarted; }
+    public void setTurnStarted(boolean started) { this.turnStarted = started; }
 }

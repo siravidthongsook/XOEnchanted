@@ -11,14 +11,21 @@ import java.util.Objects;
 import java.util.List;
 
 public class GameUiController implements GameEventListener {
-    private final GameEngine engine;
+    private GameEngine engine;
     private SkillMode mode;
     private final List<GameEventListener> listeners = new java.util.ArrayList<>();
 
+    // Tracks the first click for skills that require two targets
+    private Position pendingFirstClick = null;
+
     public GameUiController() {
+        initEngine();
+        this.mode = SkillMode.PLACE;
+    }
+
+    private void initEngine() {
         this.engine = new GameEngine();
         this.engine.setEventListener(this);
-        this.mode = SkillMode.PLACE;
     }
 
     public void addEventListener(GameEventListener listener) {
@@ -40,6 +47,14 @@ public class GameUiController implements GameEventListener {
         listeners.forEach(l -> l.onLineSelectionRequired(lines));
     }
 
+    // Add the missing forwarder for the turn end event
+    @Override
+    public void onTurnEnded(PlayerId nextPlayer) {
+        // Reset the mode back to default placement when a turn ends
+        setMode(SkillMode.PLACE);
+        listeners.forEach(l -> l.onTurnEnded(nextPlayer));
+    }
+
     public GameState state() {
         return engine.getGameState();
     }
@@ -50,11 +65,13 @@ public class GameUiController implements GameEventListener {
 
     public void setMode(SkillMode mode) {
         this.mode = Objects.requireNonNull(mode, "mode cannot be null");
+        this.pendingFirstClick = null; // Clear memory when changing modes
     }
 
     public void resetGame() {
-        // TODO: keep selected mode while resetting if preferred by UX.
-        throw new UnsupportedOperationException("TODO: implement GameUiController.resetGame");
+        // Re-initialize the engine and reset UI states
+        initEngine();
+        setMode(SkillMode.PLACE);
     }
 
     public void onCellClicked(int row, int col) {
@@ -63,13 +80,61 @@ public class GameUiController implements GameEventListener {
             return;
         }
 
-        if (mode == SkillMode.PLACE) {
-            engine.playPlacementTurn(new Position(row, col));
-            return;
-        }
+        Position clickedPos = new Position(row, col);
 
-        // TODO: implement selection flow for each skill mode.
-        throw new UnsupportedOperationException("TODO: implement skill mode click flow");
+        switch (mode) {
+            case PLACE:
+                engine.playPlacementTurn(clickedPos);
+                break;
+
+            case SEAL:
+                engine.useSealSkill(clickedPos);
+                setMode(SkillMode.PLACE);
+                break;
+
+            case DISRUPT:
+                engine.useDisruptSkill(clickedPos);
+                setMode(SkillMode.PLACE);
+                break;
+
+            case SHIFT:
+                if (pendingFirstClick == null) {
+                    // PRE-VALIDATE: Must click your own piece to shift!
+                    if (state().getCell(clickedPos) != game.model.CellType.fromPlayer(state().getCurrentPlayer())) {
+                        throw new IllegalArgumentException("You must select your own piece to shift.");
+                    }
+                    pendingFirstClick = clickedPos;
+                } else if (pendingFirstClick.equals(clickedPos)) {
+                    pendingFirstClick = null;
+                } else {
+                    try {
+                        engine.useShiftSkill(pendingFirstClick, clickedPos);
+                        setMode(SkillMode.PLACE);
+                    } finally {
+                        pendingFirstClick = null;
+                    }
+                }
+                break;
+
+            case DOUBLE_PLACE:
+                if (pendingFirstClick == null) {
+                    // PRE-VALIDATE: Double Place requires an empty cell!
+                    if (state().getCell(clickedPos) != game.model.CellType.EMPTY) {
+                        throw new IllegalArgumentException("Double Place targets must be empty cells.");
+                    }
+                    pendingFirstClick = clickedPos;
+                } else if (pendingFirstClick.equals(clickedPos)) {
+                    pendingFirstClick = null;
+                } else {
+                    try {
+                        engine.useDoublePlaceSkill(pendingFirstClick, clickedPos);
+                        setMode(SkillMode.PLACE);
+                    } finally {
+                        pendingFirstClick = null;
+                    }
+                }
+                break;
+        }
     }
 
     private void handleLineSelection(int row, int col) {
@@ -81,5 +146,9 @@ public class GameUiController implements GameEventListener {
             }
         }
         throw new IllegalArgumentException("Invalid selection. Click on a highlighted cell.");
+    }
+
+    public Position getPendingFirstClick() {
+        return pendingFirstClick;
     }
 }

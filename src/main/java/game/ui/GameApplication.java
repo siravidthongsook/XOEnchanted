@@ -109,8 +109,18 @@ public class GameApplication extends Application implements GameEventListener {
     private void refreshView() {
         GameState state = controller.state();
 
-        boardView.render(state);
+        boardView.render(state, controller.getPendingFirstClick());
         hudView.render(state, controller.mode());
+
+        if (controller.mode() == SkillMode.SHIFT || controller.mode() == SkillMode.DOUBLE_PLACE) {
+            if (controller.getPendingFirstClick() == null) {
+                hudView.showStatus("Status: Select first target for " + controller.mode());
+            } else {
+                hudView.showStatus("Status: Select second target...");
+            }
+        } else if (controller.mode() == SkillMode.PLACE) {
+            hudView.showStatus("Status: Standard Placement");
+        }
     }
 
     @Override
@@ -126,5 +136,17 @@ public class GameApplication extends Application implements GameEventListener {
     @Override
     public void onLineSelectionRequired(List<Line> lines) {
         hudView.showStatus("Multiple lines detected! Select a line to clear.");
+    }
+
+    @Override
+    public void onTurnEnded(PlayerId nextPlayer) {
+        // 1. Reset the interaction mode back to standard placement for the new player
+        controller.setMode(SkillMode.PLACE);
+
+        // 2. Announce the turn change in the HUD
+        hudView.showStatus("Turn ended! It is now " + nextPlayer + "'s turn.");
+
+        // 3. Refresh the UI to update energy counters, active player highlights, and expired visual effects
+        refreshView();
     }
 }

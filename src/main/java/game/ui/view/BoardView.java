@@ -213,29 +213,37 @@ public class BoardView {
         return node;
     }
 
-    public void render(GameState state) {
+    public void render(GameState state, Position pendingFirstClick) {
         this.currentPendingLines = state.isWaitingForLineSelection() ? state.getPendingLines() : null;
-        
         for (int row = 0; row < GameState.BOARD_SIZE; row++) {
             for (int col = 0; col < GameState.BOARD_SIZE; col++) {
                 Position pos = new Position(row, col);
                 CellType cellType = state.getCell(pos);
 
                 if (cellType == CellType.EMPTY && animatingPositions.contains(pos)) continue;
-                
+
                 Label label = pieceLabels[row][col];
                 label.setText(renderCell(cellType));
-                
+
                 // Set piece color based on player
                 label.getStyleClass().removeAll("hud-value-x", "hud-value-o");
                 if (cellType == CellType.X) label.getStyleClass().add("hud-value-x");
                 if (cellType == CellType.O) label.getStyleClass().add("hud-value-o");
 
-                cellContainers[row][col].setDisable(state.isGameOver());
-                
-                cellContainers[row][col].getStyleClass().removeAll("board-cell-sealed");
+                StackPane cell = cellContainers[row][col];
+                cell.setDisable(state.isGameOver());
+
+                // Clear state-specific CSS classes before reapplying them
+                cell.getStyleClass().removeAll("board-cell-sealed", "board-cell-selected");
+
+                // Apply Sealed style
                 if (cellType == CellType.SEALED) {
-                    cellContainers[row][col].getStyleClass().add("board-cell-sealed");
+                    cell.getStyleClass().add("board-cell-sealed");
+                }
+
+                // Apply Pending First Click style
+                if (pendingFirstClick != null && pendingFirstClick.equals(pos)) {
+                    cell.getStyleClass().add("board-cell-selected");
                 }
             }
         }
