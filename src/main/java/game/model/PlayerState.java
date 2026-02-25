@@ -6,6 +6,8 @@ public class PlayerState {
     private int score;
     private int energy;
     private boolean priorityTurn;
+    private boolean skipNextTurnEnergyGain = false;
+    private int overheatCounter = 0;
 
     public PlayerState() {
         this.score = 0;
@@ -51,5 +53,21 @@ public class PlayerState {
         int gain = priorityTurn ? 2 : 1;
         priorityTurn = false;
         return gain;
+    }
+
+    public boolean isSkipNextTurnEnergyGain() {
+        return skipNextTurnEnergyGain;
+    }
+
+    public void setSkipNextTurnEnergyGain(boolean skip) {
+        this.skipNextTurnEnergyGain = skip;
+    }
+
+    public int getOverheatCounter() {
+        return overheatCounter;
+    }
+
+    public void setOverheatCounter(int count) {
+        this.overheatCounter = count;
     }
 }

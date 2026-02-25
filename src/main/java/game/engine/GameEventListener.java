@@ -8,4 +8,5 @@ public interface GameEventListener {
     void onPiecePlaced(Position position, PlayerId playerId);
     void onLineCleared(Line line);
     void onLineSelectionRequired(java.util.List<Line> lines);
+    void onTurnEnded(PlayerId nextPlayer);
 }
