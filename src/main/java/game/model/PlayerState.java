@@ -1,36 +1,41 @@
 package game.model;
 
 public class PlayerState {
-    private static final int MAX_ENERGY = 10;
+    private static final int MAX_ENERGY = 5;
 
     private int score;
     private int energy;
     private boolean priorityTurn;
-    private boolean skipNextEnergyGain; // เพิ่มตัวแปรสำหรับ Penalty ของ Disrupt
 
     public PlayerState() {
         this.score = 0;
         this.energy = 0;
         this.priorityTurn = false;
-        this.skipNextEnergyGain = false;
     }
 
-    public int getScore() { return score; }
-    public int getEnergy() { return energy; }
-    public boolean isPriorityTurn() { return priorityTurn; }
-    public void setPriorityTurn(boolean priorityTurn) { this.priorityTurn = priorityTurn; }
+    public int getScore() {
+        return score;
+    }
 
-    public void setSkipNextEnergyGain(boolean skip) {
-        this.skipNextEnergyGain = skip;
+    public int getEnergy() {
+        return energy;
+    }
+
+    public boolean isPriorityTurn() {
+        return priorityTurn;
     }
 
     public void gainEnergy(int amount) {
-        this.energy = Math.min(this.energy + amount, MAX_ENERGY);
+        energy = Math.min(MAX_ENERGY, energy + amount);
     }
 
     public void spendEnergy(int amount) {
-        if (amount < 0) throw new IllegalArgumentException("Energy amount cannot be negative");
-        if (energy < amount) throw new IllegalStateException("Not enough energy");
+        if (amount < 0) {
+            throw new IllegalArgumentException("Energy amount cannot be negative");
+        }
+        if (energy < amount) {
+            throw new IllegalStateException("Not enough energy");
+        }
         energy -= amount;
     }
 
@@ -38,13 +43,11 @@ public class PlayerState {
         score += amount;
     }
 
+    public void setPriorityTurn(boolean priorityTurn) {
+        this.priorityTurn = priorityTurn;
+    }
+
     public int consumeTurnStartGain() {
-        // ถ้าติด Penalty จาก Disrupt ให้งดรับ Energy
-        if (skipNextEnergyGain) {
-            skipNextEnergyGain = false;
-            priorityTurn = false;
-            return 0;
-        }
         int gain = priorityTurn ? 2 : 1;
         priorityTurn = false;
         return gain;

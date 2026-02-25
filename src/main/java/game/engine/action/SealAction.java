@@ -1,8 +1,6 @@
 package game.engine.action;
 
-import game.model.CellType;
 import game.model.GameState;
-import game.model.PlayerState;
 import game.model.Position;
 
 public class SealAction implements SkillAction {
@@ -14,20 +12,14 @@ public class SealAction implements SkillAction {
 
     @Override
     public boolean validate(GameState state) {
-        PlayerState actorState = state.getPlayerState(state.getCurrentPlayer());
-        // ต้องมีพลังงาน >= 2 และเป้าหมายต้องเป็นช่องว่าง
-        return actorState.getEnergy() >= 2 && state.getCell(target) == CellType.EMPTY;
+        // TODO: validate energy cost and "empty + not already sealed" target rules.
+        throw new UnsupportedOperationException("TODO: implement SealAction.validate");
     }
 
     @Override
     public void apply(GameState state) {
-        PlayerState actorState = state.getPlayerState(state.getCurrentPlayer());
-
-        actorState.spendEnergy(2); // จ่าย 2 Energy
-
-        // คำนวณเทิร์นที่จะปลดล็อก (สิ้นสุดในเทิร์นของฝ่ายตรงข้าม)
-        int unlockTurn = state.getTotalTurnCount() + 1;
-        state.sealCell(target, unlockTurn);
+        // TODO: mark target as sealed and attach next-turn expiry tracking.
+        throw new UnsupportedOperationException("TODO: implement SealAction.apply");
     }
 
     public Position target() {
