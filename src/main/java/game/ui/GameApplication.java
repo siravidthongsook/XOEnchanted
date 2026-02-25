@@ -42,7 +42,8 @@ public class GameApplication extends Application implements GameEventListener {
                 this::onShiftSelected,
                 this::onDisruptSelected,
                 this::onDoublePlaceSelected,
-                this::onResetRequested
+                this::onResetRequested,
+                this::onResetSkillRequested
         );
 
         BorderPane root = new BorderPane();
@@ -103,6 +104,13 @@ public class GameApplication extends Application implements GameEventListener {
         controller = new GameUiController();
         controller.addEventListener(this);
         hudView.showStatus("Status: new game started");
+        refreshView();
+    }
+
+    private void onResetSkillRequested()
+    {
+        controller.setMode(SkillMode.PLACE);
+        hudView.showStatus("Status: reset skill");
         refreshView();
     }
 
