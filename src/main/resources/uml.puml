@@ -1,0 +1,342 @@
+@startuml
+class game.engine.action.ShiftAction {
+- Position from
+- Position to
++ <<Create>> ShiftAction(Position,Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position from()
++ Position to()
+}
+
+
+class game.ui.view.ActionBarView {
+- HBox node
++ <<Create>> ActionBarView(Runnable,Runnable,Runnable,Runnable,Runnable,Runnable)
++ HBox node()
+}
+
+
+class game.model.Line {
+- Position first
+- Position second
+- Position third
++ <<Create>> Line(Position,Position,Position)
++ List<Position> positions()
++ Position third()
++ Position second()
++ Position first()
+}
+
+
+enum game.model.PlayerId {
++  X
++  O
++ PlayerId opponent()
+}
+
+
+enum game.model.CellType {
++  EMPTY
++  X
++  O
++  SEALED
++ {static} CellType fromPlayer(PlayerId)
+}
+
+
+class game.engine.OverheatRuleService {
+- {static} int OVERHEAT_ENERGY_LEVEL
+- {static} int PENALTY_DROP_TO
+- {static} int MAX_CONSECUTIVE_TURNS
++ void applyPreGainAdjustment(GameState,PlayerId)
++ void updateTrackerAtEndOfTurn(GameState,PlayerId)
+}
+
+
+interface game.engine.GameEventListener {
+~ void onPiecePlaced(Position,PlayerId)
+~ void onLineCleared(Line)
+~ void onLineSelectionRequired(java.util.List<Line>)
+~ void onTurnEnded(PlayerId)
+}
+
+class game.engine.action.DisruptAction {
+- {static} int COST
+- Position target
++ <<Create>> DisruptAction(Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position target()
+}
+
+
+class game.engine.GameEngine {
+- {static} int WIN_SCORE
+- {static} int MAX_TURNS
+- GameState gameState
+- GameEventListener eventListener
+- SealLifecycleService sealLifecycleService
+- FrozenRuleService frozenRuleService
+- OverheatRuleService overheatRuleService
++ <<Create>> GameEngine()
++ void setEventListener(GameEventListener)
++ GameState getGameState()
++ void playPlacementTurn(Position)
++ void selectLine(Line)
++ void useSealSkill(Position)
++ void useShiftSkill(Position,Position)
++ void useDisruptSkill(Position)
++ void useDoublePlaceSkill(Position,Position)
+- void startTurnGainEnergy(PlayerState)
+- boolean resolveScoring(PlayerId,PlayerState)
+- void applyScoring(PlayerId,PlayerState,Line)
+- void endTurn(PlayerId,boolean)
+- void resolveTurnLimitResult()
+- void ensureGameIsActive()
+}
+
+
+class game.model.PlayerState {
+- {static} int MAX_ENERGY
+- int score
+- int energy
+- boolean priorityTurn
+- boolean skipNextTurnEnergyGain
+- int overheatCounter
++ <<Create>> PlayerState()
++ int getScore()
++ int getEnergy()
++ boolean isPriorityTurn()
++ void gainEnergy(int)
++ void spendEnergy(int)
++ void addScore(int)
++ void setPriorityTurn(boolean)
++ int consumeTurnStartGain()
++ boolean isSkipNextTurnEnergyGain()
++ void setSkipNextTurnEnergyGain(boolean)
++ int getOverheatCounter()
++ void setOverheatCounter(int)
+}
+
+
+class game.engine.SealLifecycleService {
++ void updateAtEndOfTurn(GameState)
+}
+
+enum game.ui.SkillMode {
++  PLACE
++  SEAL
++  SHIFT
++  DISRUPT
++  DOUBLE_PLACE
+}
+
+class game.ui.view.BoardView {
+- StackPane[][] cellContainers
+- Label[][] pieceLabels
+- GridPane grid
+- Pane overlayPane
+- StackPane node
+- int cellSize
+- java.util.List<game.model.Line> currentPendingLines
+- Position lastHoveredPos
+- java.util.Set<Position> animatingPositions
++ <<Create>> BoardView(int,int,BiConsumer<Integer,Integer>)
+- void handleMouseEntered(int,int)
+- void handleMouseExited()
+- void updateHighlights()
++ void animatePiecePlacement(Position,PlayerId)
++ void animateLineClear(game.model.Line)
++ StackPane node()
++ void render(GameState,Position)
+- String renderCell(CellType)
+}
+
+
+class game.model.Position {
+- int row
+- int col
++ <<Create>> Position(int,int)
++ int col()
++ int row()
+}
+
+
+class game.ui.GameApplication {
+- {static} int CELL_SIZE
+- {static} String FONT_URL
+- GameUiController controller
+- BoardView boardView
+- HudView hudView
++ {static} void main(String[])
++ void start(Stage)
+- void handleCellClick(int,int)
+- void onSealSelected()
+- void onShiftSelected()
+- void onDisruptSelected()
+- void onDoublePlaceSelected()
+- void onResetRequested()
+- void onResetSkillRequested()
+- void refreshView()
++ void onPiecePlaced(Position,PlayerId)
++ void onLineCleared(Line)
++ void onLineSelectionRequired(List<Line>)
++ void onTurnEnded(PlayerId)
+}
+
+
+class game.engine.action.DoublePlaceAction {
+- {static} int COST
+- Position first
+- Position second
++ <<Create>> DoublePlaceAction(Position,Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position first()
++ Position second()
+}
+
+
+class game.engine.LineDetector {
+- {static} List<Line> ALL_LINES
+- <<Create>> LineDetector()
++ {static} List<Line> detectLines(GameState,PlayerId)
++ {static} void resolveSelectedLine(GameState,Line)
+~ {static} List<Line> allLines()
+- {static} List<Line> precomputeLines()
+}
+
+
+class game.ui.view.HudView {
+- Label currentPlayerLabel
+- Label turnLabel
+- Label scoreXLabel
+- Label scoreOLabel
+- Label energyXLabel
+- Label energyOLabel
+- Label statusLabel
+- Label modeLabel
+- VBox node
++ <<Create>> HudView()
+- Label createLabel(String,String)
+- VBox createPlayerStatBox(String,String)
++ VBox node()
++ void showStatus(String)
++ void showPlacedAt(int,int)
++ void render(GameState,SkillMode)
+- String renderModeLabel(SkillMode)
+}
+
+
+class game.engine.FrozenRuleService {
+- {static} int INACTIVITY_THRESHOLD
++ void updateAtEndOfTurn(GameState)
++ boolean isFrozenAt(GameState,int,int)
+}
+
+
+class game.engine.action.SealAction {
+- Position target
++ <<Create>> SealAction(Position)
++ boolean validate(GameState)
++ void apply(GameState)
++ Position target()
+}
+
+
+class Main {
+- <<Create>> Main()
++ {static} void main(String[])
+}
+
+interface game.engine.action.SkillAction {
+~ boolean validate(GameState)
+~ void apply(GameState)
+}
+
+class game.model.GameState {
++ {static} int BOARD_SIZE
+- CellType[][] board
+- Map<PlayerId,PlayerState> playerStates
+- PlayerId currentPlayer
+- int totalTurnCount
+- boolean suddenDeath
+- boolean gameOver
+- PlayerId winner
+- boolean waitingForLineSelection
+- java.util.List<Line> pendingLines
+- boolean turnEnded
+- java.util.Map<Position,Integer> activeSeals
+- java.util.Set<Position> frozenCells
+- java.util.Map<Position,Integer> pieceInactivityCounters
+- boolean turnStarted
++ <<Create>> GameState()
++ PlayerId getCurrentPlayer()
++ int getTotalTurnCount()
++ boolean isSuddenDeath()
++ boolean isGameOver()
++ PlayerId getWinner()
++ boolean isWaitingForLineSelection()
++ void setWaitingForLineSelection(boolean)
++ java.util.List<Line> getPendingLines()
++ void setPendingLines(java.util.List<Line>)
++ PlayerState getPlayerState(PlayerId)
++ CellType getCell(Position)
++ void setCell(Position,CellType)
++ void placePiece(Position,PlayerId)
++ void clearCell(Position)
++ boolean isInsideBoard(Position)
++ void incrementTurn()
++ void switchCurrentPlayer()
++ void setSuddenDeath(boolean)
++ void setWinner(PlayerId)
+- void validateInsideBoard(Position)
++ boolean isTurnEnded()
++ void setTurnEnded(boolean)
++ void addSeal(Position,int)
++ java.util.Map<Position,Integer> getActiveSeals()
++ void removeSeal(Position)
++ boolean isFrozen(Position)
++ void addFrozenCell(Position)
++ void removeFrozenCell(Position)
++ int getPieceInactivity(Position)
++ void setPieceInactivity(Position,int)
++ void clearPieceMetadata(Position)
++ boolean isTurnStarted()
++ void setTurnStarted(boolean)
+}
+
+
+class game.ui.GameUiController {
+- GameEngine engine
+- SkillMode mode
+- List<GameEventListener> listeners
+- Position pendingFirstClick
++ <<Create>> GameUiController()
+- void initEngine()
++ void addEventListener(GameEventListener)
++ void onPiecePlaced(Position,PlayerId)
++ void onLineCleared(Line)
++ void onLineSelectionRequired(List<Line>)
++ void onTurnEnded(PlayerId)
++ GameState state()
++ SkillMode mode()
++ void setMode(SkillMode)
++ void resetGame()
++ void onCellClicked(int,int)
+- void handleLineSelection(int,int)
++ Position getPendingFirstClick()
+}
+
+
+
+
+game.engine.action.SkillAction <|.. game.engine.action.ShiftAction
+game.engine.action.SkillAction <|.. game.engine.action.DisruptAction
+game.engine.GameEventListener <|.. game.ui.GameApplication
+javafx.application.Application <|-- game.ui.GameApplication
+game.engine.action.SkillAction <|.. game.engine.action.DoublePlaceAction
+game.engine.action.SkillAction <|.. game.engine.action.SealAction
+game.engine.GameEventListener <|.. game.ui.GameUiController
+@enduml
