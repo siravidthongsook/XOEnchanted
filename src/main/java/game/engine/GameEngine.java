@@ -5,6 +5,7 @@ import game.model.Line;
 import game.model.PlayerId;
 import game.model.PlayerState;
 import game.model.Position;
+import game.model.CellType;
 
 import java.util.List;
 
@@ -230,6 +231,11 @@ public class GameEngine {
             return;
         }
 
+        if (isBoardFull()) {
+            resolveBoardFullResult();
+            return;
+        }
+
         sealLifecycleService.updateAtEndOfTurn(gameState);
         frozenRuleService.updateAtEndOfTurn(gameState);
         overheatRuleService.updateTrackerAtEndOfTurn(gameState, actor);
@@ -266,6 +272,33 @@ public class GameEngine {
         }
 
         gameState.setSuddenDeath(true);
+    }
+
+    private boolean isBoardFull() {
+        for (int row = 0; row < GameState.BOARD_SIZE; row++) {
+            for (int col = 0; col < GameState.BOARD_SIZE; col++) {
+                if (gameState.getCell(new Position(row, col)) == CellType.EMPTY) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void resolveBoardFullResult() {
+        int xScore = gameState.getPlayerState(PlayerId.X).getScore();
+        int oScore = gameState.getPlayerState(PlayerId.O).getScore();
+
+        if (xScore > oScore) {
+            gameState.setWinner(PlayerId.X);
+            return;
+        }
+        if (oScore > xScore) {
+            gameState.setWinner(PlayerId.O);
+            return;
+        }
+
+        gameState.endAsTie();
     }
 
     private void ensureGameIsActive() {

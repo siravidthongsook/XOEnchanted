@@ -127,6 +127,11 @@ public class GameState {
         this.gameOver = winner != null;
     }
 
+    public void endAsTie() {
+        this.winner = null;
+        this.gameOver = true;
+    }
+
     private void validateInsideBoard(Position position) {
         if (!isInsideBoard(position)) {
             throw new IllegalArgumentException("Position is out of board bounds");
