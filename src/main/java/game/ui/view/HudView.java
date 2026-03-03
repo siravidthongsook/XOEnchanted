@@ -98,11 +98,16 @@ public class HudView {
         scoreOLabel.setText("Score: " + state.getPlayerState(PlayerId.O).getScore());
         energyOLabel.setText("Energy: " + state.getPlayerState(PlayerId.O).getEnergy());
 
+        statusLabel.setStyle("-fx-text-fill: #E0E0E0;");
         if (state.isGameOver()) {
-            statusLabel.setText("GAME OVER! WINNER: " + state.getWinner());
+            if (state.getWinner() != null) {
+                statusLabel.setText("GAME OVER! WINNER: " + state.getWinner() + " (RESET GAME to play again)");
+            } else {
+                statusLabel.setText("GAME OVER! RESULT: TIE (RESET GAME to play again)");
+            }
             statusLabel.setStyle("-fx-text-fill: yellow;");
         } else if (state.isSuddenDeath()) {
-            statusLabel.setText("SUDDEN DEATH ACTIVE!");
+            statusLabel.setText("TIE AFTER TURN LIMIT! SUDDEN DEATH ACTIVE");
             statusLabel.setStyle("-fx-text-fill: orange;");
         }
     }
@@ -117,4 +122,3 @@ public class HudView {
         };
     }
 }
-

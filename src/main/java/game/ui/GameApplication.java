@@ -130,6 +130,10 @@ public class GameApplication extends Application implements GameEventListener {
         boardView.render(state, controller.getPendingFirstClick());
         hudView.render(state, controller.mode());
 
+        if (state.isGameOver() || state.isSuddenDeath()) {
+            return;
+        }
+
         if (controller.mode() == SkillMode.SHIFT || controller.mode() == SkillMode.DOUBLE_PLACE) {
             if (controller.getPendingFirstClick() == null) {
                 hudView.showStatus("Status: Select first target for " + controller.mode());
