@@ -61,6 +61,14 @@
     -fx-border-color: white;
 }
 
+.button.help-button {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-min-width: 52px;
+    -fx-min-height: 46px;
+    -fx-padding: 0;
+}
+
 .hud-container {
     -fx-padding: 40; /* Increased padding */
     -fx-spacing: 25; /* Increased spacing */

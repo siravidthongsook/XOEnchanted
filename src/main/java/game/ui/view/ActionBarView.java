@@ -11,6 +11,7 @@ public class ActionBarView {
     private static final int DOUBLE_PLACE_COST = 4;
 
     private final HBox node;
+    private final Button howToPlayButton;
     private final Button sealButton;
     private final Button moveButton;
     private final Button disruptButton;
@@ -18,25 +19,29 @@ public class ActionBarView {
     private final Button resetGameButton;
 
     public ActionBarView(
+            Runnable onHowToPlay,
             Runnable onSeal,
             Runnable onMove,
             Runnable onDisrupt,
             Runnable onDoublePlace,
             Runnable onReset
     ) {
+        this.howToPlayButton = new Button("?");
+        this.howToPlayButton.getStyleClass().add("help-button");
         this.sealButton = new Button("Seal (" + SEAL_COST + ")");
         this.moveButton = new Button("Move (" + MOVE_COST + ")");
         this.disruptButton = new Button("Disrupt (" + DISRUPT_COST + ")");
         this.doublePlaceButton = new Button("Double Place (" + DOUBLE_PLACE_COST + ")");
         this.resetGameButton = new Button("Reset Game");
 
+        howToPlayButton.setOnAction(event -> onHowToPlay.run());
         sealButton.setOnAction(event -> onSeal.run());
         moveButton.setOnAction(event -> onMove.run());
         disruptButton.setOnAction(event -> onDisrupt.run());
         doublePlaceButton.setOnAction(event -> onDoublePlace.run());
         resetGameButton.setOnAction(event -> onReset.run());
 
-        this.node = new HBox(12, sealButton, moveButton, disruptButton, doublePlaceButton, resetGameButton);
+        this.node = new HBox(12, howToPlayButton, sealButton, moveButton, disruptButton, doublePlaceButton, resetGameButton);
         this.node.getStyleClass().add("action-bar");
     }
 
@@ -55,6 +60,7 @@ public class ActionBarView {
         setButtonVisible(moveButton, !gameOver);
         setButtonVisible(disruptButton, !gameOver);
         setButtonVisible(doublePlaceButton, !gameOver);
+        setButtonVisible(howToPlayButton, true);
         setButtonVisible(resetGameButton, true);
     }
 

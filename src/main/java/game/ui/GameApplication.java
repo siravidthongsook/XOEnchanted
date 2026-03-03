@@ -11,7 +11,10 @@ import game.ui.view.BoardView;
 import game.ui.view.HudView;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
@@ -59,6 +62,7 @@ public class GameApplication extends Application implements GameEventListener {
         this.boardView = new BoardView(GameState.BOARD_SIZE, CELL_SIZE, this::handleCellClick);
         this.hudView = new HudView();
         this.actionBarView = new ActionBarView(
+                this::onHowToPlayRequested,
                 this::onSealSelected,
                 this::onMoveSelected,
                 this::onDisruptSelected,
@@ -139,6 +143,31 @@ public class GameApplication extends Application implements GameEventListener {
         controller.addEventListener(this);
         hudView.showStatus("New game started");
         refreshView();
+    }
+
+    private void onHowToPlayRequested() {
+        Alert helpDialog = new Alert(Alert.AlertType.INFORMATION);
+        helpDialog.setTitle("How To Play");
+        helpDialog.setHeaderText(null);
+        helpDialog.setGraphic(null);
+        helpDialog.setContentText(
+                "XO ENCHANTED 4X4\n\n"
+                        + "Goal: score 3 lines before your opponent.\n\n"
+                        + "- Place pieces on empty cells.\n"
+                        + "- A line is any 3 in a row: horizontal, vertical, or diagonal.\n"
+                        + "- Scoring clears the selected line and gives your opponent priority (+2 start energy).\n\n"
+                        + "Skills:\n"
+                        + "- Seal (2): block an empty cell for one opponent placement.\n"
+                        + "- Move (1): move your piece to an empty cell.\n"
+                        + "- Disrupt (3): remove one opponent piece.\n"
+                        + "- Double Place (4): place two pieces in one turn on non-adjacent cells."
+        );
+        helpDialog.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        helpDialog.getDialogPane().getStyleClass().add("root");
+        helpDialog.getDialogPane().setPrefWidth(560);
+        helpDialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        helpDialog.getButtonTypes().setAll(ButtonType.OK);
+        helpDialog.showAndWait();
     }
 
     private void refreshView() {
