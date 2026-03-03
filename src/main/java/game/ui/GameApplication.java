@@ -35,6 +35,7 @@ public class GameApplication extends Application implements GameEventListener {
     private GameUiController controller;
     private BoardView boardView;
     private HudView hudView;
+    private ActionBarView actionBarView;
     private final List<AudioClip> placeSfxClips = new ArrayList<>();
     private final List<AudioClip> crossSfxClips = new ArrayList<>();
     private final Random random = new Random();
@@ -49,13 +50,12 @@ public class GameApplication extends Application implements GameEventListener {
         this.controller.addEventListener(this);
         this.boardView = new BoardView(GameState.BOARD_SIZE, CELL_SIZE, this::handleCellClick);
         this.hudView = new HudView();
-        ActionBarView actionBarView = new ActionBarView(
+        this.actionBarView = new ActionBarView(
                 this::onSealSelected,
                 this::onShiftSelected,
                 this::onDisruptSelected,
                 this::onDoublePlaceSelected,
-                this::onResetRequested,
-                this::onResetSkillRequested
+                this::onResetRequested
         );
 
         BorderPane root = new BorderPane();
@@ -86,46 +86,45 @@ public class GameApplication extends Application implements GameEventListener {
                 hudView.showPlacedAt(row, col);
             }
         } catch (RuntimeException ex) {
-            hudView.showStatus("Status: " + ex.getMessage());
+            hudView.showStatus(ex.getMessage());
         }
         refreshView();
     }
 
     private void onSealSelected() {
-        controller.setMode(SkillMode.SEAL);
-        hudView.showStatus("Status: TODO implement Seal target flow");
+        toggleSkillMode(SkillMode.SEAL, "TODO implement Seal target flow");
         refreshView();
     }
 
     private void onShiftSelected() {
-        controller.setMode(SkillMode.SHIFT);
-        hudView.showStatus("Status: TODO implement Shift two-click flow");
+        toggleSkillMode(SkillMode.SHIFT, "TODO implement Shift two-click flow");
         refreshView();
     }
 
     private void onDisruptSelected() {
-        controller.setMode(SkillMode.DISRUPT);
-        hudView.showStatus("Status: TODO implement Disrupt target flow");
+        toggleSkillMode(SkillMode.DISRUPT, "TODO implement Disrupt target flow");
         refreshView();
     }
 
     private void onDoublePlaceSelected() {
-        controller.setMode(SkillMode.DOUBLE_PLACE);
-        hudView.showStatus("Status: TODO implement Double Place two-target flow");
+        toggleSkillMode(SkillMode.DOUBLE_PLACE, "TODO implement Double Place two-target flow");
         refreshView();
+    }
+
+    private void toggleSkillMode(SkillMode skillMode, String selectedStatus) {
+        if (controller.mode() == skillMode) {
+            controller.setMode(SkillMode.PLACE);
+            hudView.showStatus("Standard Placement");
+            return;
+        }
+        controller.setMode(skillMode);
+        hudView.showStatus(selectedStatus);
     }
 
     private void onResetRequested() {
         controller = new GameUiController();
         controller.addEventListener(this);
-        hudView.showStatus("Status: new game started");
-        refreshView();
-    }
-
-    private void onResetSkillRequested()
-    {
-        controller.setMode(SkillMode.PLACE);
-        hudView.showStatus("Status: reset skill");
+        hudView.showStatus("New game started");
         refreshView();
     }
 
@@ -134,6 +133,7 @@ public class GameApplication extends Application implements GameEventListener {
 
         boardView.render(state, controller.getPendingFirstClick());
         hudView.render(state, controller.mode());
+        actionBarView.render(controller.mode(), state.isGameOver());
 
         if (state.isGameOver() || state.isSuddenDeath()) {
             return;
@@ -141,12 +141,12 @@ public class GameApplication extends Application implements GameEventListener {
 
         if (controller.mode() == SkillMode.SHIFT || controller.mode() == SkillMode.DOUBLE_PLACE) {
             if (controller.getPendingFirstClick() == null) {
-                hudView.showStatus("Status: Select first target for " + controller.mode());
+                hudView.showStatus("Select first target for " + controller.mode());
             } else {
-                hudView.showStatus("Status: Select second target...");
+                hudView.showStatus("Select second target...");
             }
         } else if (controller.mode() == SkillMode.PLACE) {
-            hudView.showStatus("Status: Standard Placement");
+            hudView.showStatus("Standard Placement");
         }
     }
 

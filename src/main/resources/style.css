@@ -55,6 +55,12 @@
     -fx-text-fill: black;
 }
 
+.button.skill-selected {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-border-color: white;
+}
+
 .hud-container {
     -fx-padding: 40; /* Increased padding */
     -fx-spacing: 25; /* Increased spacing */
