@@ -52,7 +52,7 @@ public class GameApplication extends Application implements GameEventListener {
         this.hudView = new HudView();
         this.actionBarView = new ActionBarView(
                 this::onSealSelected,
-                this::onShiftSelected,
+                this::onMoveSelected,
                 this::onDisruptSelected,
                 this::onDoublePlaceSelected,
                 this::onResetRequested
@@ -96,8 +96,8 @@ public class GameApplication extends Application implements GameEventListener {
         refreshView();
     }
 
-    private void onShiftSelected() {
-        toggleSkillMode(SkillMode.SHIFT, "TODO implement Shift two-click flow");
+    private void onMoveSelected() {
+        toggleSkillMode(SkillMode.MOVE, "Move: select one of your pieces, then any highlighted empty cell (cost 1 energy)");
         refreshView();
     }
 
@@ -142,11 +142,18 @@ public class GameApplication extends Application implements GameEventListener {
 
         if (controller.mode() == SkillMode.SEAL) {
             hudView.showStatus("Seal: select an empty cell (cost 2 energy)");
-        } else if (controller.mode() == SkillMode.SHIFT || controller.mode() == SkillMode.DOUBLE_PLACE) {
+        } else if (controller.mode() == SkillMode.MOVE) {
+            PlayerId currentPlayer = state.getCurrentPlayer();
             if (controller.getPendingFirstClick() == null) {
-                hudView.showStatus("Select first target for " + controller.mode());
+                hudView.showStatus("Move: select your " + currentPlayer + " piece");
             } else {
-                hudView.showStatus("Select second target...");
+                hudView.showStatus("Move: select any highlighted empty cell");
+            }
+        } else if (controller.mode() == SkillMode.DOUBLE_PLACE) {
+            if (controller.getPendingFirstClick() == null) {
+                hudView.showStatus("Double Place: select first empty cell");
+            } else {
+                hudView.showStatus("Double Place: select second empty cell");
             }
         } else if (controller.mode() == SkillMode.PLACE) {
             hudView.showStatus("Standard Placement");

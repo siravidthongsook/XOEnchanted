@@ -109,23 +109,23 @@ public class GameEngine {
          */
     }
 
-        public void useShiftSkill(Position from, Position to) {
+        public void useMoveSkill(Position from, Position to) {
             ensureGameIsActive();
             if (gameState.isWaitingForLineSelection()) {
                 throw new IllegalStateException("Cannot use skills while waiting for line selection");
             }
 
-            game.engine.action.ShiftAction shiftAction = new game.engine.action.ShiftAction(from, to);
+            game.engine.action.MoveAction moveAction = new game.engine.action.MoveAction(from, to);
 
-            if (!shiftAction.validate(gameState)) {
-                throw new IllegalArgumentException("Invalid Shift action.");
+            if (!moveAction.validate(gameState)) {
+                throw new IllegalArgumentException("Invalid Move action.");
             }
 
-            shiftAction.apply(gameState);
+            moveAction.apply(gameState);
 
             // Optional Event Listener trigger
             // if (eventListener != null) {
-            //     eventListener.onPieceShifted(from, to, gameState.getCurrentPlayer());
+            //     eventListener.onPieceMoved(from, to, gameState.getCurrentPlayer());
             // }
         }
 

@@ -236,7 +236,15 @@ public class BoardView {
                 cell.setDisable(state.isGameOver());
 
                 // Clear state-specific CSS classes before reapplying them
-                cell.getStyleClass().removeAll("board-cell-sealed", "board-cell-selected", "board-cell-skill-target");
+                cell.getStyleClass().removeAll(
+                        "board-cell-sealed",
+                        "board-cell-selected",
+                        "board-cell-skill-target",
+                        "board-cell-move-source",
+                        "board-cell-move-destination",
+                        "board-cell-move-blocked",
+                        "board-cell-move-frozen"
+                );
 
                 // Apply Sealed style
                 if (cellType == CellType.SEALED) {
@@ -245,6 +253,28 @@ public class BoardView {
 
                 if (mode == SkillMode.SEAL && cellType == CellType.EMPTY) {
                     cell.getStyleClass().add("board-cell-skill-target");
+                }
+
+                if (mode == SkillMode.MOVE) {
+                    if (pendingFirstClick == null) {
+                        boolean selectableSource = cellType == CellType.fromPlayer(state.getCurrentPlayer())
+                                && !state.isFrozen(pos)
+                                && hasAnyEmptyCell(state);
+
+                        if (selectableSource) {
+                            cell.getStyleClass().addAll("board-cell-skill-target", "board-cell-move-source");
+                        } else if (cellType == CellType.fromPlayer(state.getCurrentPlayer()) && state.isFrozen(pos)) {
+                            cell.getStyleClass().add("board-cell-move-frozen");
+                        } else if (cellType == CellType.fromPlayer(state.getCurrentPlayer())) {
+                            cell.getStyleClass().add("board-cell-move-blocked");
+                        }
+                    } else {
+                        if (pendingFirstClick.equals(pos)) {
+                            cell.getStyleClass().add("board-cell-selected");
+                        } else if (cellType == CellType.EMPTY) {
+                            cell.getStyleClass().addAll("board-cell-skill-target", "board-cell-move-destination");
+                        }
+                    }
                 }
 
                 // Apply Pending First Click style
@@ -263,5 +293,16 @@ public class BoardView {
             case O -> "O";
             case SEALED -> "■";
         };
+    }
+
+    private boolean hasAnyEmptyCell(GameState state) {
+        for (int row = 0; row < GameState.BOARD_SIZE; row++) {
+            for (int col = 0; col < GameState.BOARD_SIZE; col++) {
+                if (state.getCell(new Position(row, col)) == CellType.EMPTY) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

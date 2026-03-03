@@ -1,7 +1,7 @@
 package game.engine;
 
 import game.engine.action.SealAction;
-import game.engine.action.ShiftAction;
+import game.engine.action.MoveAction;
 import game.engine.action.DoublePlaceAction;
 import game.engine.action.DisruptAction;
 import game.model.CellType;
@@ -52,7 +52,8 @@ import static org.junit.jupiter.api.Assertions.*;
         @Test
         void testSealAction_Invalid_NotEnoughEnergy() {
             // Drain energy to 1
-            state.getPlayerState(currentPlayer).spendEnergy(9);
+            int energyToDrain = state.getPlayerState(currentPlayer).getEnergy() - 1;
+            state.getPlayerState(currentPlayer).spendEnergy(energyToDrain);
 
             Position target = new Position(1, 1);
             SealAction action = new SealAction(target);
@@ -72,48 +73,79 @@ import static org.junit.jupiter.api.Assertions.*;
         }
 
         // ==========================================
-        // SHIFT ACTION TESTS (Cost: 2, Own piece, Orthogonal)
+        // MOVE ACTION TESTS (Cost: 1, Own piece, Any empty destination)
         // ==========================================
 
         @Test
-        void testShiftAction_Valid() {
+        void testMoveAction_Valid() {
             Position from = new Position(1, 1);
-            Position to = new Position(1, 2); // 1 step right (Orthogonal)
+            Position to = new Position(3, 3);
             state.placePiece(from, currentPlayer);
 
-            ShiftAction action = new ShiftAction(from, to);
+            MoveAction action = new MoveAction(from, to);
 
-            assertTrue(action.validate(state), "Shift should be valid orthogonally to an empty cell");
+            assertTrue(action.validate(state), "Move should be valid to any empty destination");
 
             int initialEnergy = state.getPlayerState(currentPlayer).getEnergy();
             action.apply(state);
 
             assertEquals(CellType.EMPTY, state.getCell(from), "Original cell should be empty");
             assertEquals(CellType.fromPlayer(currentPlayer), state.getCell(to), "Piece should be at new cell");
-            assertEquals(initialEnergy - 2, state.getPlayerState(currentPlayer).getEnergy(), "Shift should cost 2 energy");
+            assertEquals(initialEnergy - 1, state.getPlayerState(currentPlayer).getEnergy(), "Move should cost 1 energy");
             assertEquals(0, state.getPieceInactivity(to), "Inactivity counter should be reset to 0");
         }
 
         @Test
-        void testShiftAction_Invalid_Diagonal() {
+        void testMoveAction_Valid_DiagonalDestination() {
             Position from = new Position(1, 1);
-            Position to = new Position(2, 2); // Diagonal move
+            Position to = new Position(2, 2);
             state.placePiece(from, currentPlayer);
 
-            ShiftAction action = new ShiftAction(from, to);
+            MoveAction action = new MoveAction(from, to);
 
-            assertFalse(action.validate(state), "Shift should be invalid for diagonal movement");
+            assertTrue(action.validate(state), "Move should allow diagonal/non-adjacent destination");
         }
 
         @Test
-        void testShiftAction_Invalid_WrongOwner() {
+        void testMoveAction_Invalid_WrongOwner() {
             Position from = new Position(1, 1);
             Position to = new Position(1, 2);
             state.placePiece(from, opponentPlayer); // Opponent's piece
 
-            ShiftAction action = new ShiftAction(from, to);
+            MoveAction action = new MoveAction(from, to);
 
-            assertFalse(action.validate(state), "Shift should be invalid on opponent's piece");
+            assertFalse(action.validate(state), "Move should be invalid on opponent's piece");
+        }
+
+        @Test
+        void testMoveAction_Invalid_FrozenPiece() {
+            Position from = new Position(1, 1);
+            Position to = new Position(1, 2);
+            state.placePiece(from, currentPlayer);
+            state.addFrozenCell(from);
+
+            MoveAction action = new MoveAction(from, to);
+
+            assertFalse(action.validate(state), "Move should be invalid for frozen pieces");
+        }
+
+        @Test
+        void testMoveAction_Apply_ClearsStaleFrozenMetadataAtDestination() {
+            Position from = new Position(1, 1);
+            Position to = new Position(3, 0);
+            state.placePiece(from, currentPlayer);
+
+            // Simulate stale metadata left behind on an empty destination cell.
+            state.addFrozenCell(to);
+            state.setPieceInactivity(to, 2);
+
+            MoveAction action = new MoveAction(from, to);
+
+            assertTrue(action.validate(state), "Move should still be valid to an empty destination cell");
+            action.apply(state);
+
+            assertFalse(state.isFrozen(to), "Destination should not inherit stale frozen metadata");
+            assertEquals(0, state.getPieceInactivity(to), "Moved piece should start with fresh inactivity");
         }
 
         // ==========================================
@@ -209,4 +241,3 @@ import static org.junit.jupiter.api.Assertions.*;
             assertFalse(action.validate(state), "Double place should be invalid if a target is already occupied");
         }
     }
-

@@ -103,18 +103,24 @@ public class GameUiController implements GameEventListener {
                 setMode(SkillMode.PLACE);
                 break;
 
-            case SHIFT:
+            case MOVE:
                 if (pendingFirstClick == null) {
-                    // PRE-VALIDATE: Must click your own piece to shift!
+                    // PRE-VALIDATE: Must click your own piece to move.
                     if (state().getCell(clickedPos) != game.model.CellType.fromPlayer(state().getCurrentPlayer())) {
-                        throw new IllegalArgumentException("You must select your own piece to shift.");
+                        throw new IllegalArgumentException("You must select your own piece to move.");
+                    }
+                    if (state().isFrozen(clickedPos)) {
+                        throw new IllegalArgumentException("That piece is frozen and cannot be moved.");
+                    }
+                    if (!hasAnyEmptyCell()) {
+                        throw new IllegalArgumentException("No empty destination cells are available for Move.");
                     }
                     pendingFirstClick = clickedPos;
                 } else if (pendingFirstClick.equals(clickedPos)) {
                     pendingFirstClick = null;
                 } else {
                     try {
-                        engine.useShiftSkill(pendingFirstClick, clickedPos);
+                        engine.useMoveSkill(pendingFirstClick, clickedPos);
                         setMode(SkillMode.PLACE);
                     } finally {
                         pendingFirstClick = null;
@@ -156,5 +162,17 @@ public class GameUiController implements GameEventListener {
 
     public Position getPendingFirstClick() {
         return pendingFirstClick;
+    }
+
+    private boolean hasAnyEmptyCell() {
+        for (int row = 0; row < GameState.BOARD_SIZE; row++) {
+            for (int col = 0; col < GameState.BOARD_SIZE; col++) {
+                Position position = new Position(row, col);
+                if (state().getCell(position) == game.model.CellType.EMPTY) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

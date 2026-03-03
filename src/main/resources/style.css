@@ -137,6 +137,33 @@
     -fx-background-color: rgba(255, 255, 255, 0.06);
 }
 
+.board-cell-selected {
+    -fx-background-color: rgba(0, 255, 255, 0.18);
+    -fx-border-color: #00ffff;
+}
+
+.board-cell-move-source {
+    -fx-background-color: rgba(0, 255, 255, 0.14);
+    -fx-border-color: #00e5ff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 229, 255, 0.28), 8, 0.25, 0, 0);
+}
+
+.board-cell-move-destination {
+    -fx-background-color: rgba(57, 255, 20, 0.14);
+    -fx-border-color: #39ff14;
+    -fx-effect: dropshadow(gaussian, rgba(57, 255, 20, 0.26), 8, 0.25, 0, 0);
+}
+
+.board-cell-move-blocked {
+    -fx-opacity: 0.42;
+}
+
+.board-cell-move-frozen {
+    -fx-background-color: rgba(255, 165, 0, 0.12);
+    -fx-border-color: #ffb347;
+    -fx-effect: innershadow(gaussian, rgba(255, 165, 0, 0.35), 8, 0.2, 0, 0);
+}
+
 .board-cell-highlight {
     -fx-background-color: rgba(0, 255, 255, 0.1);
     -fx-border-color: cyan !important;

@@ -128,7 +128,7 @@ public class HudView {
         return switch (mode) {
             case PLACE -> "PLACE";
             case SEAL -> "SEAL";
-            case SHIFT -> "SHIFT";
+            case MOVE -> "MOVE";
             case DISRUPT -> "DISRUPT";
             case DOUBLE_PLACE -> "DOUBLE PLACE";
         };

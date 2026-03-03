@@ -1,8 +1,8 @@
 @startuml
-class game.engine.action.ShiftAction {
+class game.engine.action.MoveAction {
 - Position from
 - Position to
-+ <<Create>> ShiftAction(Position,Position)
++ <<Create>> MoveAction(Position,Position)
 + boolean validate(GameState)
 + void apply(GameState)
 + Position from()
@@ -85,7 +85,7 @@ class game.engine.GameEngine {
 + void playPlacementTurn(Position)
 + void selectLine(Line)
 + void useSealSkill(Position)
-+ void useShiftSkill(Position,Position)
++ void useMoveSkill(Position,Position)
 + void useDisruptSkill(Position)
 + void useDoublePlaceSkill(Position,Position)
 - void startTurnGainEnergy(PlayerState)
@@ -127,7 +127,7 @@ class game.engine.SealLifecycleService {
 enum game.ui.SkillMode {
 +  PLACE
 +  SEAL
-+  SHIFT
++  MOVE
 +  DISRUPT
 +  DOUBLE_PLACE
 }
@@ -173,7 +173,7 @@ class game.ui.GameApplication {
 + void start(Stage)
 - void handleCellClick(int,int)
 - void onSealSelected()
-- void onShiftSelected()
+- void onMoveSelected()
 - void onDisruptSelected()
 - void onDoublePlaceSelected()
 - void onResetRequested()
@@ -332,7 +332,7 @@ class game.ui.GameUiController {
 
 
 
-game.engine.action.SkillAction <|.. game.engine.action.ShiftAction
+game.engine.action.SkillAction <|.. game.engine.action.MoveAction
 game.engine.action.SkillAction <|.. game.engine.action.DisruptAction
 game.engine.GameEventListener <|.. game.ui.GameApplication
 javafx.application.Application <|-- game.ui.GameApplication

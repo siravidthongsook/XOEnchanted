@@ -3,7 +3,7 @@ package game.ui;
 public enum SkillMode {
     PLACE,
     SEAL,
-    SHIFT,
+    MOVE,
     DISRUPT,
     DOUBLE_PLACE
 }
