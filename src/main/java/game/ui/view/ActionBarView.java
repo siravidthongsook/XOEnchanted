@@ -40,7 +40,7 @@ public class ActionBarView {
         this.node.getStyleClass().add("action-bar");
     }
 
-    public void render(SkillMode mode, boolean gameOver, int currentEnergy) {
+    public void render(SkillMode mode, boolean gameOver, int currentEnergy, boolean canUseDoublePlace) {
         setSkillSelected(sealButton, mode == SkillMode.SEAL);
         setSkillSelected(moveButton, mode == SkillMode.MOVE);
         setSkillSelected(disruptButton, mode == SkillMode.DISRUPT);
@@ -49,7 +49,7 @@ public class ActionBarView {
         sealButton.setDisable(currentEnergy < SEAL_COST);
         moveButton.setDisable(currentEnergy < MOVE_COST);
         disruptButton.setDisable(currentEnergy < DISRUPT_COST);
-        doublePlaceButton.setDisable(currentEnergy < DOUBLE_PLACE_COST);
+        doublePlaceButton.setDisable(!canUseDoublePlace);
 
         setButtonVisible(sealButton, !gameOver);
         setButtonVisible(moveButton, !gameOver);

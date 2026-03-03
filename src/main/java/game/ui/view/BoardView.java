@@ -221,16 +221,18 @@ public class BoardView {
                 Position pos = new Position(row, col);
                 CellType cellType = state.getCell(pos);
 
-                if (cellType == CellType.EMPTY && animatingPositions.contains(pos)) continue;
+                boolean keepAnimatingLabel = cellType == CellType.EMPTY && animatingPositions.contains(pos);
 
                 Label label = pieceLabels[row][col];
-                label.setText(renderCell(cellType));
-                label.setTranslateX(cellType == CellType.O ? -1 : 0);
+                if (!keepAnimatingLabel) {
+                    label.setText(renderCell(cellType));
+                    label.setTranslateX(cellType == CellType.O ? -1 : 0);
 
-                // Set piece color based on player
-                label.getStyleClass().removeAll("hud-value-x", "hud-value-o");
-                if (cellType == CellType.X) label.getStyleClass().add("hud-value-x");
-                if (cellType == CellType.O) label.getStyleClass().add("hud-value-o");
+                    // Set piece color based on player
+                    label.getStyleClass().removeAll("hud-value-x", "hud-value-o");
+                    if (cellType == CellType.X) label.getStyleClass().add("hud-value-x");
+                    if (cellType == CellType.O) label.getStyleClass().add("hud-value-o");
+                }
 
                 StackPane cell = cellContainers[row][col];
                 cell.setDisable(state.isGameOver());
@@ -245,7 +247,10 @@ public class BoardView {
                         "board-cell-move-blocked",
                         "board-cell-move-frozen",
                         "board-cell-disrupt-target",
-                        "board-cell-disrupt-immune"
+                        "board-cell-disrupt-immune",
+                        "board-cell-double-place-first",
+                        "board-cell-double-place-second",
+                        "board-cell-double-place-blocked"
                 );
 
                 // Apply Sealed style
@@ -288,6 +293,24 @@ public class BoardView {
                     }
                 }
 
+                if (mode == SkillMode.DOUBLE_PLACE) {
+                    if (pendingFirstClick == null) {
+                        if (cellType == CellType.EMPTY && hasAnyValidDoublePlaceSecond(state, pos)) {
+                            cell.getStyleClass().addAll("board-cell-skill-target", "board-cell-double-place-first");
+                        } else if (cellType == CellType.EMPTY) {
+                            cell.getStyleClass().add("board-cell-double-place-blocked");
+                        }
+                    } else {
+                        if (pendingFirstClick.equals(pos)) {
+                            cell.getStyleClass().add("board-cell-selected");
+                        } else if (cellType == CellType.EMPTY && !isOrthogonallyAdjacent(pendingFirstClick, pos)) {
+                            cell.getStyleClass().addAll("board-cell-skill-target", "board-cell-double-place-second");
+                        } else if (cellType == CellType.EMPTY) {
+                            cell.getStyleClass().add("board-cell-double-place-blocked");
+                        }
+                    }
+                }
+
                 // Apply Pending First Click style
                 if (pendingFirstClick != null && pendingFirstClick.equals(pos)) {
                     cell.getStyleClass().add("board-cell-selected");
@@ -315,5 +338,29 @@ public class BoardView {
             }
         }
         return false;
+    }
+
+    private boolean hasAnyValidDoublePlaceSecond(GameState state, Position first) {
+        for (int row = 0; row < GameState.BOARD_SIZE; row++) {
+            for (int col = 0; col < GameState.BOARD_SIZE; col++) {
+                Position second = new Position(row, col);
+                if (second.equals(first)) {
+                    continue;
+                }
+                if (state.getCell(second) != CellType.EMPTY) {
+                    continue;
+                }
+                if (!isOrthogonallyAdjacent(first, second)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isOrthogonallyAdjacent(Position first, Position second) {
+        int rowDiff = Math.abs(first.row() - second.row());
+        int colDiff = Math.abs(first.col() - second.col());
+        return rowDiff + colDiff == 1;
     }
 }

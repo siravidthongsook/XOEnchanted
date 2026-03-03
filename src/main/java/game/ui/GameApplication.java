@@ -4,6 +4,7 @@ import game.model.GameState;
 import game.model.Position;
 import game.model.Line;
 import game.model.PlayerId;
+import game.model.PlayerState;
 import game.engine.GameEventListener;
 import game.ui.view.ActionBarView;
 import game.ui.view.BoardView;
@@ -26,6 +27,10 @@ import java.util.Random;
 public class GameApplication extends Application implements GameEventListener {
     private static final int CELL_SIZE = 100;
     private static final int LEGEND_OFFSET_Y = 250;
+    private static final int MAX_ENERGY = 5;
+    private static final int DOUBLE_PLACE_COST = 4;
+    private static final int OVERHEAT_PENALTY_DROP_TO = 3;
+    private static final int OVERHEAT_MAX_CONSECUTIVE_TURNS = 2;
     private static final String FONT_URL = "https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/Silkscreen-Regular.ttf";
     private static final int PLACE_SFX_VARIANTS = 4;
     private static final int CROSS_SFX_VARIANTS = 3;
@@ -114,7 +119,7 @@ public class GameApplication extends Application implements GameEventListener {
     }
 
     private void onDoublePlaceSelected() {
-        toggleSkillMode(SkillMode.DOUBLE_PLACE, "TODO implement Double Place two-target flow");
+        toggleSkillMode(SkillMode.DOUBLE_PLACE, "Double Place: select first empty cell, then a non-adjacent empty cell (cost 4 energy)");
         refreshView();
     }
 
@@ -140,8 +145,10 @@ public class GameApplication extends Application implements GameEventListener {
 
         boardView.render(state, controller.mode(), controller.getPendingFirstClick());
         hudView.render(state, controller.mode());
-        int currentEnergy = state.getPlayerState(state.getCurrentPlayer()).getEnergy();
-        actionBarView.render(controller.mode(), state.isGameOver(), currentEnergy);
+        PlayerState currentPlayerState = state.getPlayerState(state.getCurrentPlayer());
+        int currentEnergy = currentPlayerState.getEnergy();
+        boolean canUseDoublePlace = projectedEnergyAtTurnStart(state, currentPlayerState) >= DOUBLE_PLACE_COST;
+        actionBarView.render(controller.mode(), state.isGameOver(), currentEnergy, canUseDoublePlace);
 
         if (state.isGameOver() || state.isSuddenDeath()) {
             hudView.showLegend(false);
@@ -166,7 +173,7 @@ public class GameApplication extends Application implements GameEventListener {
             if (controller.getPendingFirstClick() == null) {
                 hudView.showStatus("Double Place: select first empty cell");
             } else {
-                hudView.showStatus("Double Place: select second empty cell");
+                hudView.showStatus("Double Place: select highlighted second empty cell (not orthogonally adjacent)");
             }
             hudView.showLegend(false);
         } else if (controller.mode() == SkillMode.PLACE) {
@@ -238,5 +245,23 @@ public class GameApplication extends Application implements GameEventListener {
 
         // 3. Refresh the UI to update energy counters, active player highlights, and expired visual effects
         refreshView();
+    }
+
+    private int projectedEnergyAtTurnStart(GameState state, PlayerState playerState) {
+        int projected = playerState.getEnergy();
+        if (state.isTurnStarted()) {
+            return projected;
+        }
+
+        if (playerState.getOverheatCounter() >= OVERHEAT_MAX_CONSECUTIVE_TURNS && projected > OVERHEAT_PENALTY_DROP_TO) {
+            projected = OVERHEAT_PENALTY_DROP_TO;
+        }
+
+        if (playerState.isSkipNextTurnEnergyGain()) {
+            return projected;
+        }
+
+        int gain = playerState.isPriorityTurn() ? 2 : 1;
+        return Math.min(MAX_ENERGY, projected + gain);
     }
 }

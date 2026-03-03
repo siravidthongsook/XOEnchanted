@@ -136,14 +136,22 @@ public class GameUiController implements GameEventListener {
 
             case DOUBLE_PLACE:
                 if (pendingFirstClick == null) {
-                    // PRE-VALIDATE: Double Place requires an empty cell!
                     if (state().getCell(clickedPos) != game.model.CellType.EMPTY) {
                         throw new IllegalArgumentException("Double Place targets must be empty cells.");
+                    }
+                    if (!hasValidDoublePlaceSecondTarget(clickedPos)) {
+                        throw new IllegalArgumentException("That cell has no valid second target. Choose another first cell.");
                     }
                     pendingFirstClick = clickedPos;
                 } else if (pendingFirstClick.equals(clickedPos)) {
                     pendingFirstClick = null;
                 } else {
+                    if (state().getCell(clickedPos) != game.model.CellType.EMPTY) {
+                        throw new IllegalArgumentException("Double Place second target must be an empty cell.");
+                    }
+                    if (isOrthogonallyAdjacent(pendingFirstClick, clickedPos)) {
+                        throw new IllegalArgumentException("Double Place targets cannot be orthogonally adjacent.");
+                    }
                     try {
                         engine.useDoublePlaceSkill(pendingFirstClick, clickedPos);
                         setMode(SkillMode.PLACE);
@@ -180,5 +188,29 @@ public class GameUiController implements GameEventListener {
             }
         }
         return false;
+    }
+
+    private boolean hasValidDoublePlaceSecondTarget(Position first) {
+        for (int row = 0; row < GameState.BOARD_SIZE; row++) {
+            for (int col = 0; col < GameState.BOARD_SIZE; col++) {
+                Position second = new Position(row, col);
+                if (second.equals(first)) {
+                    continue;
+                }
+                if (state().getCell(second) != game.model.CellType.EMPTY) {
+                    continue;
+                }
+                if (!isOrthogonallyAdjacent(first, second)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isOrthogonallyAdjacent(Position first, Position second) {
+        int rowDiff = Math.abs(first.row() - second.row());
+        int colDiff = Math.abs(first.col() - second.col());
+        return rowDiff + colDiff == 1;
     }
 }

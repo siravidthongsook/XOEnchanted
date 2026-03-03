@@ -199,6 +199,22 @@
     -fx-effect: none;
 }
 
+.board-cell-double-place-first {
+    -fx-background-color: rgba(122, 189, 255, 0.16);
+    -fx-background-insets: 1;
+    -fx-effect: dropshadow(gaussian, rgba(122, 189, 255, 0.2), 6, 0.18, 0, 0);
+}
+
+.board-cell-double-place-second {
+    -fx-background-color: rgba(57, 255, 20, 0.14);
+    -fx-background-insets: 1;
+    -fx-effect: dropshadow(gaussian, rgba(57, 255, 20, 0.16), 6, 0.18, 0, 0);
+}
+
+.board-cell-double-place-blocked {
+    -fx-opacity: 0.45;
+}
+
 .board-cell-highlight {
     -fx-background-color: rgba(0, 255, 255, 0.1);
     -fx-border-color: cyan !important;

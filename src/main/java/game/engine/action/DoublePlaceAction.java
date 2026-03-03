@@ -18,33 +18,32 @@ public class DoublePlaceAction implements SkillAction {
 
     @Override
     public boolean validate(GameState state) {
-        // 1. Validate Energy (Must have at least 4)
+        if (!validateTargets(state)) {
+            return false;
+        }
+
         if (state.getPlayerState(state.getCurrentPlayer()).getEnergy() < COST) {
             return false;
         }
 
-        // 2. Validate Board Bounds
+        return true;
+    }
+
+    public boolean validateTargets(GameState state) {
         if (!state.isInsideBoard(first) || !state.isInsideBoard(second)) {
             return false;
         }
 
-        // 3. Validate they are not the exact same cell
         if (first.equals(second)) {
             return false;
         }
 
-        // 4. Validate Both Targets are Empty
         if (state.getCell(first) != CellType.EMPTY || state.getCell(second) != CellType.EMPTY) {
             return false;
         }
 
-        // 5. Validate Non-Adjacent Rule (ห้ามติดกันแบบ orthogonal)
-        // Orthogonal means they share an edge (Up, Down, Left, Right).
-        // In math: absolute row difference + absolute col difference == 1
-        int rowDiff = abs(first.row() - second.row());
-        int colDiff = abs(first.col() - second.col());
-        if (rowDiff + colDiff == 1) {
-            return false; // They are orthogonally adjacent!
+        if (isOrthogonallyAdjacent(first, second)) {
+            return false;
         }
 
         return true;
@@ -70,5 +69,11 @@ public class DoublePlaceAction implements SkillAction {
 
     public Position second() {
         return second;
+    }
+
+    private boolean isOrthogonallyAdjacent(Position a, Position b) {
+        int rowDiff = abs(a.row() - b.row());
+        int colDiff = abs(a.col() - b.col());
+        return rowDiff + colDiff == 1;
     }
 }

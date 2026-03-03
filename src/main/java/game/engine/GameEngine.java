@@ -12,6 +12,10 @@ import java.util.List;
 public class GameEngine {
     private static final int WIN_SCORE = 3;
     private static final int MAX_TURNS = 24;
+    private static final int MAX_ENERGY = 5;
+    private static final int DOUBLE_PLACE_COST = 4;
+    private static final int OVERHEAT_PENALTY_DROP_TO = 3;
+    private static final int OVERHEAT_MAX_CONSECUTIVE_TURNS = 2;
 
     private final GameState gameState;
     private GameEventListener eventListener;
@@ -151,14 +155,21 @@ public class GameEngine {
             throw new IllegalStateException("Cannot use skills while waiting for line selection");
         }
 
-        // 1. Start turn logic (gain energy, etc.)
-        PlayerId actor = gameState.getCurrentPlayer();
-        PlayerState actorState = gameState.getPlayerState(actor);
-        startTurnGainEnergy(actorState);
-
-        // 2. Execute the Action
         game.engine.action.DoublePlaceAction doublePlaceAction =
                 new game.engine.action.DoublePlaceAction(first, second);
+
+        if (!doublePlaceAction.validateTargets(gameState)) {
+            throw new IllegalArgumentException("Invalid Double Place action.");
+        }
+
+        PlayerId actor = gameState.getCurrentPlayer();
+        PlayerState actorState = gameState.getPlayerState(actor);
+
+        if (projectedEnergyAtTurnStart(actorState) < DOUBLE_PLACE_COST) {
+            throw new IllegalArgumentException("Invalid Double Place action.");
+        }
+
+        startTurnGainEnergy(actorState);
 
         if (!doublePlaceAction.validate(gameState)) {
             throw new IllegalArgumentException("Invalid Double Place action.");
@@ -311,5 +322,23 @@ public class GameEngine {
         if (gameState.isGameOver()) {
             throw new IllegalStateException("Game is already over");
         }
+    }
+
+    private int projectedEnergyAtTurnStart(PlayerState actorState) {
+        int projected = actorState.getEnergy();
+        if (gameState.isTurnStarted()) {
+            return projected;
+        }
+
+        if (actorState.getOverheatCounter() >= OVERHEAT_MAX_CONSECUTIVE_TURNS && projected > OVERHEAT_PENALTY_DROP_TO) {
+            projected = OVERHEAT_PENALTY_DROP_TO;
+        }
+
+        if (actorState.isSkipNextTurnEnergyGain()) {
+            return projected;
+        }
+
+        int gain = actorState.isPriorityTurn() ? 2 : 1;
+        return Math.min(MAX_ENERGY, projected + gain);
     }
 }

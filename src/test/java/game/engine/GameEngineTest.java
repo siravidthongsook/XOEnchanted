@@ -172,6 +172,38 @@ class GameEngineTest {
         assertEquals(1, state.getPlayerState(PlayerId.X).getEnergy());
     }
 
+    @Test
+    void doublePlaceWithThreeEnergyUsesTurnStartGainAndSucceeds() {
+        GameEngine engine = new GameEngine();
+        GameState state = engine.getGameState();
+
+        state.getPlayerState(PlayerId.X).gainEnergy(3);
+
+        engine.useDoublePlaceSkill(new Position(0, 0), new Position(1, 1));
+
+        assertEquals(CellType.X, state.getCell(new Position(0, 0)));
+        assertEquals(CellType.X, state.getCell(new Position(1, 1)));
+        assertEquals(0, state.getPlayerState(PlayerId.X).getEnergy());
+        assertEquals(PlayerId.O, state.getCurrentPlayer());
+        assertEquals(1, state.getTotalTurnCount());
+    }
+
+    @Test
+    void invalidDoublePlaceDoesNotGrantTurnStartEnergy() {
+        GameEngine engine = new GameEngine();
+        GameState state = engine.getGameState();
+
+        state.getPlayerState(PlayerId.X).gainEnergy(3);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> engine.useDoublePlaceSkill(new Position(0, 0), new Position(0, 1)));
+
+        assertEquals(3, state.getPlayerState(PlayerId.X).getEnergy());
+        assertEquals(CellType.EMPTY, state.getCell(new Position(0, 0)));
+        assertEquals(CellType.EMPTY, state.getCell(new Position(0, 1)));
+        assertEquals(PlayerId.X, state.getCurrentPlayer());
+    }
+
     private static void preloadBoardLeavingOneCell(GameState state) {
         String[] rows = {
                 "XXOX",
