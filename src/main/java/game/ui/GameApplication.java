@@ -171,6 +171,10 @@ public class GameApplication extends Application implements GameEventListener {
                         + "- Normal turn start: +1 energy.\n"
                         + "- Priority turn start: +2 energy instead.\n"
                         + "- Spend energy to use skills listed below.\n\n"
+                        + "Frozen Rule\n"
+                        + "- A piece that stays inactive for 3 of its owner's turns becomes Frozen.\n"
+                        + "- Frozen lasts for 1 owner turn, then the piece thaws automatically.\n"
+                        + "- Frozen pieces cannot be moved and are immune to Disrupt.\n\n"
                         + "Skills\n"
                         + "- Seal (2): block an empty cell for one opponent placement.\n"
                         + "- Move (1): move one of your pieces to an empty cell.\n"
@@ -352,6 +356,6 @@ public class GameApplication extends Application implements GameEventListener {
     }
 
     private static int resolveLegendOffsetY(int boardSize, int cellSize) {
-        return (boardSize * cellSize) / 2 + 28;
+        return (boardSize * cellSize) / 2 + 48;
     }
 }
