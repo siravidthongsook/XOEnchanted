@@ -243,7 +243,9 @@ public class BoardView {
                         "board-cell-move-source",
                         "board-cell-move-destination",
                         "board-cell-move-blocked",
-                        "board-cell-move-frozen"
+                        "board-cell-move-frozen",
+                        "board-cell-disrupt-target",
+                        "board-cell-disrupt-immune"
                 );
 
                 // Apply Sealed style
@@ -253,6 +255,15 @@ public class BoardView {
 
                 if (mode == SkillMode.SEAL && cellType == CellType.EMPTY) {
                     cell.getStyleClass().add("board-cell-skill-target");
+                }
+
+                if (mode == SkillMode.DISRUPT) {
+                    CellType opponentCell = CellType.fromPlayer(state.getCurrentPlayer().opponent());
+                    if (cellType == opponentCell && !state.isFrozen(pos)) {
+                        cell.getStyleClass().addAll("board-cell-skill-target", "board-cell-disrupt-target");
+                    } else if (cellType == opponentCell) {
+                        cell.getStyleClass().add("board-cell-disrupt-immune");
+                    }
                 }
 
                 if (mode == SkillMode.MOVE) {

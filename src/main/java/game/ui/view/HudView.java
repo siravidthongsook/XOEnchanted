@@ -7,6 +7,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 
 public class HudView {
     private final Label currentPlayerLabel;
@@ -16,9 +19,16 @@ public class HudView {
     private final Label energyXLabel;
     private final Label energyOLabel;
     private final Label statusLabel;
+    private final TextFlow legendFlow;
+    private final Text legendPrefix;
+    private final Text legendRed;
+    private final Text legendMiddle;
+    private final Text legendOrange;
+    private final Text legendSuffix;
     private final Label modeLabel;
     private final VBox node;
     private final VBox logNode;
+    private final VBox legendNode;
 
     public HudView() {
         Label titleLabel = new Label("XO ENCHANTED");
@@ -52,6 +62,27 @@ public class HudView {
         this.logNode.getStyleClass().add("top-log-container");
         this.logNode.setPadding(new Insets(0, 0, 10, 0));
         this.logNode.setAlignment(Pos.CENTER);
+
+        this.legendPrefix = new Text("Disrupt Legend - ");
+        this.legendPrefix.getStyleClass().add("bottom-legend-label");
+        this.legendRed = new Text("Red");
+        this.legendRed.getStyleClass().add("legend-red");
+        this.legendMiddle = new Text(": valid target, ");
+        this.legendMiddle.getStyleClass().add("bottom-legend-label");
+        this.legendOrange = new Text("Orange");
+        this.legendOrange.getStyleClass().add("legend-orange");
+        this.legendSuffix = new Text(": frozen (immune)");
+        this.legendSuffix.getStyleClass().add("bottom-legend-label");
+
+        this.legendFlow = new TextFlow(legendPrefix, legendRed, legendMiddle, legendOrange, legendSuffix);
+        this.legendFlow.setTextAlignment(TextAlignment.CENTER);
+        this.legendFlow.setMaxWidth(700);
+
+        this.legendNode = new VBox(legendFlow);
+        this.legendNode.getStyleClass().add("bottom-legend-container");
+        this.legendNode.setAlignment(Pos.CENTER);
+        this.legendNode.setPadding(new Insets(10, 0, 0, 0));
+        this.legendNode.setVisible(false);
 
         this.node = new VBox(20,
                 titleLabel,
@@ -87,12 +118,20 @@ public class HudView {
         return logNode;
     }
 
+    public VBox legendNode() {
+        return legendNode;
+    }
+
     public void showStatus(String status) {
         statusLabel.setText(status);
     }
 
     public void showPlacedAt(int row, int col) {
         statusLabel.setText("Placed at (" + row + ", " + col + ")");
+    }
+
+    public void showLegend(boolean visible) {
+        legendNode.setVisible(visible);
     }
 
     public void render(GameState state, SkillMode mode) {

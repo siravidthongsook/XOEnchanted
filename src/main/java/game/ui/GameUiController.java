@@ -99,6 +99,12 @@ public class GameUiController implements GameEventListener {
                 break;
 
             case DISRUPT:
+                if (state().getCell(clickedPos) != game.model.CellType.fromPlayer(state().getCurrentPlayer().opponent())) {
+                    throw new IllegalArgumentException("You must select an opponent piece to disrupt.");
+                }
+                if (state().isFrozen(clickedPos)) {
+                    throw new IllegalArgumentException("That piece is frozen and cannot be disrupted.");
+                }
                 engine.useDisruptSkill(clickedPos);
                 setMode(SkillMode.PLACE);
                 break;

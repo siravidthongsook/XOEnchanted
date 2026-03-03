@@ -11,6 +11,7 @@ import game.ui.view.HudView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.geometry.Insets;
@@ -24,6 +25,7 @@ import java.util.Random;
 
 public class GameApplication extends Application implements GameEventListener {
     private static final int CELL_SIZE = 100;
+    private static final int LEGEND_OFFSET_Y = 250;
     private static final String FONT_URL = "https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/Silkscreen-Regular.ttf";
     private static final int PLACE_SFX_VARIANTS = 4;
     private static final int CROSS_SFX_VARIANTS = 3;
@@ -64,7 +66,12 @@ public class GameApplication extends Application implements GameEventListener {
         VBox centerColumn = new VBox(2, hudView.logNode(), boardView.node());
         centerColumn.setAlignment(Pos.CENTER);
 
-        root.setCenter(centerColumn);
+        StackPane centerStack = new StackPane(centerColumn, hudView.legendNode());
+        centerStack.setAlignment(Pos.CENTER);
+        StackPane.setAlignment(hudView.legendNode(), Pos.CENTER);
+        hudView.legendNode().setTranslateY(LEGEND_OFFSET_Y);
+
+        root.setCenter(centerStack);
         root.setRight(hudView.node());
         root.setBottom(actionBarView.node());
 
@@ -102,7 +109,7 @@ public class GameApplication extends Application implements GameEventListener {
     }
 
     private void onDisruptSelected() {
-        toggleSkillMode(SkillMode.DISRUPT, "TODO implement Disrupt target flow");
+        toggleSkillMode(SkillMode.DISRUPT, "Disrupt: select a highlighted opponent piece (cost 3 energy)");
         refreshView();
     }
 
@@ -137,11 +144,13 @@ public class GameApplication extends Application implements GameEventListener {
         actionBarView.render(controller.mode(), state.isGameOver(), currentEnergy);
 
         if (state.isGameOver() || state.isSuddenDeath()) {
+            hudView.showLegend(false);
             return;
         }
 
         if (controller.mode() == SkillMode.SEAL) {
             hudView.showStatus("Seal: select an empty cell (cost 2 energy)");
+            hudView.showLegend(false);
         } else if (controller.mode() == SkillMode.MOVE) {
             PlayerId currentPlayer = state.getCurrentPlayer();
             if (controller.getPendingFirstClick() == null) {
@@ -149,14 +158,20 @@ public class GameApplication extends Application implements GameEventListener {
             } else {
                 hudView.showStatus("Move: select any highlighted empty cell");
             }
+            hudView.showLegend(false);
+        } else if (controller.mode() == SkillMode.DISRUPT) {
+            hudView.showStatus("Disrupt: select a highlighted opponent piece");
+            hudView.showLegend(true);
         } else if (controller.mode() == SkillMode.DOUBLE_PLACE) {
             if (controller.getPendingFirstClick() == null) {
                 hudView.showStatus("Double Place: select first empty cell");
             } else {
                 hudView.showStatus("Double Place: select second empty cell");
             }
+            hudView.showLegend(false);
         } else if (controller.mode() == SkillMode.PLACE) {
             hudView.showStatus("Standard Placement");
+            hudView.showLegend(false);
         }
     }
 
