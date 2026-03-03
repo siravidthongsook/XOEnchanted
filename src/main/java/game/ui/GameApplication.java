@@ -53,6 +53,7 @@ public class GameApplication extends Application implements GameEventListener {
         Font.loadFont(FONT_URL, 12);
         loadPlaceSoundEffects();
         loadCrossSoundEffects();
+        warmUpSoundEffects();
         this.controller = new GameUiController();
         this.controller.addEventListener(this);
         this.boardView = new BoardView(GameState.BOARD_SIZE, CELL_SIZE, this::handleCellClick);
@@ -204,6 +205,18 @@ public class GameApplication extends Application implements GameEventListener {
         }
         AudioClip clip = placeSfxClips.get(random.nextInt(placeSfxClips.size()));
         clip.play();
+    }
+
+    private void warmUpSoundEffects() {
+        warmUpClipList(placeSfxClips);
+        warmUpClipList(crossSfxClips);
+    }
+
+    private void warmUpClipList(List<AudioClip> clips) {
+        for (AudioClip clip : clips) {
+            clip.play(0.0);
+            clip.stop();
+        }
     }
 
     private void loadCrossSoundEffects() {
