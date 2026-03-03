@@ -11,15 +11,20 @@ import game.ui.view.HudView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.media.AudioClip;
 import javafx.geometry.Insets;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameApplication extends Application implements GameEventListener {
     private static final int CELL_SIZE = 100;
     private static final String FONT_URL = "https://raw.githubusercontent.com/google/fonts/main/ofl/silkscreen/Silkscreen-Regular.ttf";
+    private static final int PLACE_SFX_VARIANTS = 4;
+    private static final int CROSS_SFX_VARIANTS = 3;
 
     public static void main(String[] args) {
         Application.launch(GameApplication.class, args);
@@ -28,11 +33,16 @@ public class GameApplication extends Application implements GameEventListener {
     private GameUiController controller;
     private BoardView boardView;
     private HudView hudView;
+    private final List<AudioClip> placeSfxClips = new ArrayList<>();
+    private final List<AudioClip> crossSfxClips = new ArrayList<>();
+    private final Random random = new Random();
 
     @Override
     public void start(Stage stage) {
         // Load custom font from web
         Font.loadFont(FONT_URL, 12);
+        loadPlaceSoundEffects();
+        loadCrossSoundEffects();
         this.controller = new GameUiController();
         this.controller.addEventListener(this);
         this.boardView = new BoardView(GameState.BOARD_SIZE, CELL_SIZE, this::handleCellClick);
@@ -133,11 +143,49 @@ public class GameApplication extends Application implements GameEventListener {
 
     @Override
     public void onPiecePlaced(Position position, PlayerId playerId) {
+        playRandomPlaceSoundEffect();
         boardView.animatePiecePlacement(position, playerId);
+    }
+
+    private void loadPlaceSoundEffects() {
+        for (int i = 1; i <= PLACE_SFX_VARIANTS; i++) {
+            String path = "/SFX/Place/Place" + i + ".wav";
+            java.net.URL resource = getClass().getResource(path);
+            if (resource != null) {
+                placeSfxClips.add(new AudioClip(resource.toExternalForm()));
+            }
+        }
+    }
+
+    private void playRandomPlaceSoundEffect() {
+        if (placeSfxClips.isEmpty()) {
+            return;
+        }
+        AudioClip clip = placeSfxClips.get(random.nextInt(placeSfxClips.size()));
+        clip.play();
+    }
+
+    private void loadCrossSoundEffects() {
+        for (int i = 1; i <= CROSS_SFX_VARIANTS; i++) {
+            String path = "/SFX/Cross/cross" + i + ".wav";
+            java.net.URL resource = getClass().getResource(path);
+            if (resource != null) {
+                crossSfxClips.add(new AudioClip(resource.toExternalForm()));
+            }
+        }
+    }
+
+    private void playRandomCrossSoundEffect() {
+        if (crossSfxClips.isEmpty()) {
+            return;
+        }
+        AudioClip clip = crossSfxClips.get(random.nextInt(crossSfxClips.size()));
+        clip.play();
     }
 
     @Override
     public void onLineCleared(Line line) {
+        playRandomCrossSoundEffect();
         boardView.animateLineClear(line);
     }
 

@@ -224,6 +224,7 @@ public class BoardView {
 
                 Label label = pieceLabels[row][col];
                 label.setText(renderCell(cellType));
+                label.setTranslateX(cellType == CellType.O ? -1 : 0);
 
                 // Set piece color based on player
                 label.getStyleClass().removeAll("hud-value-x", "hud-value-o");
