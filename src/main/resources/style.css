@@ -63,6 +63,18 @@
     -fx-background-color: #0c0c0c;
 }
 
+.top-log-container {
+    -fx-alignment: center;
+    -fx-background-color: #0c0c0c;
+    -fx-padding: 0;
+    -fx-min-height: 36;
+}
+
+.top-status-label {
+    -fx-font-size: 22px;
+    -fx-text-fill: #E0E0E0;
+}
+
 .action-bar {
     -fx-padding: 25;
     -fx-spacing: 15;

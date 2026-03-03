@@ -6,7 +6,6 @@ import game.ui.SkillMode;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class HudView {
@@ -19,6 +18,7 @@ public class HudView {
     private final Label statusLabel;
     private final Label modeLabel;
     private final VBox node;
+    private final VBox logNode;
 
     public HudView() {
         Label titleLabel = new Label("XO ENCHANTED");
@@ -41,15 +41,23 @@ public class HudView {
         oStats.getChildren().addAll(scoreOLabel, energyOLabel);
 
         this.statusLabel = createLabel("", "hud-label-small");
+        this.statusLabel.getStyleClass().add("top-status-label");
         this.statusLabel.setWrapText(true);
-        this.statusLabel.setMaxWidth(200);
+        this.statusLabel.setMaxWidth(700);
+        this.statusLabel.setAlignment(Pos.CENTER);
+        this.statusLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        this.statusLabel.setTranslateY(-30);
+
+        this.logNode = new VBox(statusLabel);
+        this.logNode.getStyleClass().add("top-log-container");
+        this.logNode.setPadding(new Insets(0, 0, 10, 0));
+        this.logNode.setAlignment(Pos.CENTER);
 
         this.node = new VBox(20,
                 titleLabel,
                 new VBox(5, createLabel("GAME INFO", "hud-label-small"), modeLabel, currentPlayerLabel, turnLabel),
                 xStats,
-                oStats,
-                new VBox(5, createLabel("LOG", "hud-label-small"), statusLabel)
+                oStats
         );
         this.node.getStyleClass().add("hud-container");
         this.node.setPadding(new Insets(30));
@@ -73,6 +81,10 @@ public class HudView {
 
     public VBox node() {
         return node;
+    }
+
+    public VBox logNode() {
+        return logNode;
     }
 
     public void showStatus(String status) {

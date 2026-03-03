@@ -11,8 +11,10 @@ import game.ui.view.HudView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -59,7 +61,10 @@ public class GameApplication extends Application implements GameEventListener {
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(16));
 
-        root.setCenter(boardView.node());
+        VBox centerColumn = new VBox(2, hudView.logNode(), boardView.node());
+        centerColumn.setAlignment(Pos.CENTER);
+
+        root.setCenter(centerColumn);
         root.setRight(hudView.node());
         root.setBottom(actionBarView.node());
 
