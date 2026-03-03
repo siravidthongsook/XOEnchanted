@@ -12,6 +12,16 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 
 public class HudView {
+    private static final class LegendSegment {
+        private final String text;
+        private final String styleClass;
+
+        private LegendSegment(String text, String styleClass) {
+            this.text = text;
+            this.styleClass = styleClass;
+        }
+    }
+
     private final Label currentPlayerLabel;
     private final Label turnLabel;
     private final Label scoreXLabel;
@@ -20,11 +30,6 @@ public class HudView {
     private final Label energyOLabel;
     private final Label statusLabel;
     private final TextFlow legendFlow;
-    private final Text legendPrefix;
-    private final Text legendRed;
-    private final Text legendMiddle;
-    private final Text legendOrange;
-    private final Text legendSuffix;
     private final Label modeLabel;
     private final VBox node;
     private final VBox logNode;
@@ -63,18 +68,7 @@ public class HudView {
         this.logNode.setPadding(new Insets(0, 0, 10, 0));
         this.logNode.setAlignment(Pos.CENTER);
 
-        this.legendPrefix = new Text("Disrupt Legend - ");
-        this.legendPrefix.getStyleClass().add("bottom-legend-label");
-        this.legendRed = new Text("Red");
-        this.legendRed.getStyleClass().add("legend-red");
-        this.legendMiddle = new Text(": valid target, ");
-        this.legendMiddle.getStyleClass().add("bottom-legend-label");
-        this.legendOrange = new Text("Orange");
-        this.legendOrange.getStyleClass().add("legend-orange");
-        this.legendSuffix = new Text(": frozen (immune)");
-        this.legendSuffix.getStyleClass().add("bottom-legend-label");
-
-        this.legendFlow = new TextFlow(legendPrefix, legendRed, legendMiddle, legendOrange, legendSuffix);
+        this.legendFlow = new TextFlow();
         this.legendFlow.setTextAlignment(TextAlignment.CENTER);
         this.legendFlow.setMaxWidth(700);
 
@@ -84,6 +78,8 @@ public class HudView {
         this.legendNode.setPadding(new Insets(10, 0, 0, 0));
         this.legendNode.setVisible(false);
         this.legendNode.setMouseTransparent(true);
+
+        showDisruptLegend();
 
         this.node = new VBox(20,
                 titleLabel,
@@ -131,8 +127,69 @@ public class HudView {
         statusLabel.setText("Placed at (" + row + ", " + col + ")");
     }
 
-    public void showLegend(boolean visible) {
-        legendNode.setVisible(visible);
+    public void hideLegend() {
+        legendNode.setVisible(false);
+    }
+
+    public void showSealLegend() {
+        setLegendContent(
+                segment("Seal Legend - ", "bottom-legend-label"),
+                segment("Light", "legend-cyan"),
+                segment(": selectable empty cell", "bottom-legend-label")
+        );
+        legendNode.setVisible(true);
+    }
+
+    public void showMoveLegend() {
+        setLegendContent(
+                segment("Move Legend - ", "bottom-legend-label"),
+                segment("Cyan", "legend-cyan"),
+                segment(": movable source, ", "bottom-legend-label"),
+                segment("Green", "legend-green"),
+                segment(": valid destination, ", "bottom-legend-label"),
+                segment("Orange", "legend-orange"),
+                segment(": frozen source, ", "bottom-legend-label"),
+                segment("Dim", "legend-muted"),
+                segment(": no valid destination", "bottom-legend-label")
+        );
+        legendNode.setVisible(true);
+    }
+
+    public void showDisruptLegend() {
+        setLegendContent(
+                segment("Disrupt Legend - ", "bottom-legend-label"),
+                segment("Red", "legend-red"),
+                segment(": valid target, ", "bottom-legend-label"),
+                segment("Orange", "legend-orange"),
+                segment(": frozen (immune)", "bottom-legend-label")
+        );
+        legendNode.setVisible(true);
+    }
+
+    public void showDoublePlaceLegend() {
+        setLegendContent(
+                segment("Double Place Legend - ", "bottom-legend-label"),
+                segment("Blue", "legend-blue"),
+                segment(": first placement options, ", "bottom-legend-label"),
+                segment("Green", "legend-green"),
+                segment(": valid second placement, ", "bottom-legend-label"),
+                segment("Dim", "legend-muted"),
+                segment(": blocked empty cell", "bottom-legend-label")
+        );
+        legendNode.setVisible(true);
+    }
+
+    private LegendSegment segment(String text, String styleClass) {
+        return new LegendSegment(text, styleClass);
+    }
+
+    private void setLegendContent(LegendSegment... segments) {
+        legendFlow.getChildren().clear();
+        for (LegendSegment segment : segments) {
+            Text textNode = new Text(segment.text);
+            textNode.getStyleClass().add(segment.styleClass);
+            legendFlow.getChildren().add(textNode);
+        }
     }
 
     public void render(GameState state, SkillMode mode) {

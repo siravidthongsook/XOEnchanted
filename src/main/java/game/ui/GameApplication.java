@@ -29,8 +29,7 @@ import java.util.List;
 import java.util.Random;
 
 public class GameApplication extends Application implements GameEventListener {
-    private static final int CELL_SIZE = 100;
-    private static final int LEGEND_OFFSET_Y = 250;
+    private static final int BASE_CELL_SIZE = 100;
     private static final int MAX_ENERGY = 5;
     private static final int DOUBLE_PLACE_COST = 4;
     private static final int OVERHEAT_PENALTY_DROP_TO = 3;
@@ -53,6 +52,9 @@ public class GameApplication extends Application implements GameEventListener {
 
     @Override
     public void start(Stage stage) {
+        int cellSize = resolveCellSize(GameState.BOARD_SIZE);
+        int legendOffsetY = resolveLegendOffsetY(GameState.BOARD_SIZE, cellSize);
+
         // Load custom font from web
         Font.loadFont(FONT_URL, 12);
         loadPlaceSoundEffects();
@@ -60,7 +62,7 @@ public class GameApplication extends Application implements GameEventListener {
         warmUpSoundEffects();
         this.controller = new GameUiController();
         this.controller.addEventListener(this);
-        this.boardView = new BoardView(GameState.BOARD_SIZE, CELL_SIZE, this::handleCellClick);
+        this.boardView = new BoardView(GameState.BOARD_SIZE, cellSize, this::handleCellClick);
         this.hudView = new HudView();
         this.actionBarView = new ActionBarView(
                 this::onHowToPlayRequested,
@@ -80,7 +82,7 @@ public class GameApplication extends Application implements GameEventListener {
         StackPane centerStack = new StackPane(centerColumn, hudView.legendNode());
         centerStack.setAlignment(Pos.CENTER);
         StackPane.setAlignment(hudView.legendNode(), Pos.CENTER);
-        hudView.legendNode().setTranslateY(LEGEND_OFFSET_Y);
+        hudView.legendNode().setTranslateY(legendOffsetY);
 
         root.setCenter(centerStack);
         root.setRight(hudView.node());
@@ -91,7 +93,7 @@ public class GameApplication extends Application implements GameEventListener {
         Scene scene = new Scene(root, 1100, 800);
         String css = getClass().getResource("/style.css").toExternalForm();
         scene.getStylesheets().add(css);
-        stage.setTitle("XO Enchanted 4x4");
+        stage.setTitle("XO Enchanted " + GameState.BOARD_SIZE + "x" + GameState.BOARD_SIZE);
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
@@ -152,7 +154,7 @@ public class GameApplication extends Application implements GameEventListener {
         helpDialog.setHeaderText(null);
         helpDialog.setGraphic(null);
         helpDialog.setContentText(
-                "XO ENCHANTED 4X4\n\n"
+                "XO ENCHANTED " + GameState.BOARD_SIZE + "X" + GameState.BOARD_SIZE + "\n\n"
                         + "Goal: score " + GameEngine.getWinScore() + " lines before your opponent.\n"
                         + "If no one reaches " + GameEngine.getWinScore() + " by turn " + GameEngine.getMaxTurns() + ", higher score wins (tie triggers sudden death).\n\n"
                         + "- Place pieces on empty cells.\n"
@@ -183,13 +185,13 @@ public class GameApplication extends Application implements GameEventListener {
         actionBarView.render(controller.mode(), state.isGameOver(), currentEnergy, canUseDoublePlace);
 
         if (state.isGameOver() || state.isSuddenDeath()) {
-            hudView.showLegend(false);
+            hudView.hideLegend();
             return;
         }
 
         if (controller.mode() == SkillMode.SEAL) {
             hudView.showStatus("Seal: select an empty cell (cost 2 energy)");
-            hudView.showLegend(false);
+            hudView.showSealLegend();
         } else if (controller.mode() == SkillMode.MOVE) {
             PlayerId currentPlayer = state.getCurrentPlayer();
             if (controller.getPendingFirstClick() == null) {
@@ -197,20 +199,20 @@ public class GameApplication extends Application implements GameEventListener {
             } else {
                 hudView.showStatus("Move: select any highlighted empty cell");
             }
-            hudView.showLegend(false);
+            hudView.showMoveLegend();
         } else if (controller.mode() == SkillMode.DISRUPT) {
             hudView.showStatus("Disrupt: select a highlighted opponent piece");
-            hudView.showLegend(true);
+            hudView.showDisruptLegend();
         } else if (controller.mode() == SkillMode.DOUBLE_PLACE) {
             if (controller.getPendingFirstClick() == null) {
                 hudView.showStatus("Double Place: select first empty cell");
             } else {
                 hudView.showStatus("Double Place: select highlighted second empty cell (not orthogonally adjacent)");
             }
-            hudView.showLegend(false);
+            hudView.showDoublePlaceLegend();
         } else if (controller.mode() == SkillMode.PLACE) {
             hudView.showStatus("Standard Placement");
-            hudView.showLegend(false);
+            hudView.hideLegend();
         }
     }
 
@@ -307,5 +309,19 @@ public class GameApplication extends Application implements GameEventListener {
 
         int gain = playerState.isPriorityTurn() ? 2 : 1;
         return Math.min(MAX_ENERGY, projected + gain);
+    }
+
+    private static int resolveCellSize(int boardSize) {
+        if (boardSize <= 4) {
+            return BASE_CELL_SIZE;
+        }
+        if (boardSize == 5) {
+            return 84;
+        }
+        return Math.max(64, 420 / boardSize);
+    }
+
+    private static int resolveLegendOffsetY(int boardSize, int cellSize) {
+        return (boardSize * cellSize) / 2 + 28;
     }
 }

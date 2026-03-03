@@ -110,6 +110,26 @@
     -fx-fill: #ffb347;
 }
 
+.legend-cyan {
+    -fx-font-size: 14px;
+    -fx-fill: #7ddfff;
+}
+
+.legend-green {
+    -fx-font-size: 14px;
+    -fx-fill: #7dff7d;
+}
+
+.legend-blue {
+    -fx-font-size: 14px;
+    -fx-fill: #9ad0ff;
+}
+
+.legend-muted {
+    -fx-font-size: 14px;
+    -fx-fill: #9a9a9a;
+}
+
 .action-bar {
     -fx-padding: 25;
     -fx-spacing: 15;
