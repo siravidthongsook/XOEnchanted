@@ -238,6 +238,49 @@
     -fx-effect: innershadow(gaussian, rgba(255, 255, 0, 0.5), 10, 0, 0, 0);
 }
 
+.cell-impact-layer {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.cell-impact-x {
+    -fx-background-color: rgba(255, 127, 127, 0.28);
+    -fx-background-insets: 0;
+    -fx-effect: innershadow(gaussian, rgba(255, 127, 127, 0.45), 10, 0.25, 0, 0);
+}
+
+.cell-impact-o {
+    -fx-background-color: rgba(0, 255, 255, 0.28);
+    -fx-background-insets: 0;
+    -fx-effect: innershadow(gaussian, rgba(0, 255, 255, 0.45), 10, 0.25, 0, 0);
+}
+
+.board-cell-line-clear {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-insets: 1;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 18, 0.25, 0, 0);
+}
+
+.fx-float-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 6;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+}
+
+.fx-float-placed {
+    -fx-text-fill: #d9ffd0;
+    -fx-background-color: rgba(57, 255, 20, 0.18);
+    -fx-border-color: rgba(57, 255, 20, 0.55);
+}
+
+.fx-float-line {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(255, 255, 255, 0.16);
+    -fx-border-color: rgba(255, 255, 255, 0.6);
+}
+
 .strike-line {
     -fx-stroke: white;
     -fx-stroke-width: 8;

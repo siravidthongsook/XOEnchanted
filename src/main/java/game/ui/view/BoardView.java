@@ -6,28 +6,34 @@ import game.model.Position;
 import game.model.PlayerId;
 import game.ui.SkillMode;
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.animation.KeyValue;
 import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Line;
 import java.util.function.BiConsumer;
 
 public class BoardView {
     private final StackPane[][] cellContainers;
+    private final Region[][] impactLayers;
     private final Label[][] pieceLabels;
     private final GridPane grid;
     private final Pane overlayPane;
     private final StackPane node;
     private final int cellSize;
+    private static final Duration IMPACT_FLASH_DURATION = Duration.millis(260);
+    private static final Duration FLOATING_TEXT_DURATION = Duration.millis(520);
+    private static final Duration LINE_CLEAR_HIGHLIGHT_DURATION = Duration.millis(320);
     private java.util.List<game.model.Line> currentPendingLines;
     private Position lastHoveredPos;
     private final java.util.Set<Position> animatingPositions = new java.util.HashSet<>();
@@ -35,6 +41,7 @@ public class BoardView {
     public BoardView(int boardSize, int cellSize, BiConsumer<Integer, Integer> onCellClicked) {
         this.cellSize = cellSize;
         this.cellContainers = new StackPane[boardSize][boardSize];
+        this.impactLayers = new Region[boardSize][boardSize];
         this.pieceLabels = new Label[boardSize][boardSize];
         this.grid = new GridPane();
         this.grid.setAlignment(javafx.geometry.Pos.CENTER);
@@ -75,8 +82,14 @@ public class BoardView {
                 pieceLabel.getStyleClass().add("piece-label");
                 pieceLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                 pieceLabel.setAlignment(javafx.geometry.Pos.CENTER);
+
+                Region impactLayer = new Region();
+                impactLayer.getStyleClass().add("cell-impact-layer");
+                impactLayer.setMouseTransparent(true);
+                impactLayer.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                StackPane.setMargin(impactLayer, new Insets(2));
                 
-                cell.getChildren().add(pieceLabel);
+                cell.getChildren().addAll(impactLayer, pieceLabel);
                 StackPane.setAlignment(pieceLabel, javafx.geometry.Pos.CENTER);
                 
                 cell.setOnMouseClicked(event -> onCellClicked.accept(targetRow, targetCol));
@@ -84,6 +97,7 @@ public class BoardView {
                 cell.setOnMouseExited(event -> handleMouseExited());
 
                 cellContainers[row][col] = cell;
+                impactLayers[row][col] = impactLayer;
                 pieceLabels[row][col] = pieceLabel;
                 grid.add(cell, col, row);
             }
@@ -133,8 +147,11 @@ public class BoardView {
     }
 
     public void animatePiecePlacement(Position position, PlayerId playerId) {
+        animateCellImpact(position, playerId);
         Label label = pieceLabels[position.row()][position.col()];
         label.setText(playerId.toString());
+
+        showFloatingText(position, "Placed", "fx-float-placed");
         
         ScaleTransition st = new ScaleTransition(Duration.millis(200), label);
         st.setFromX(0.5);
@@ -149,6 +166,8 @@ public class BoardView {
         Position endPos = line.third();
         
         animatingPositions.addAll(line.positions());
+        applyLineClearHighlight(line);
+        showFloatingText(line.second(), "Line!", "fx-float-line");
 
         // Calculate center coordinates for the line
         double startX = startPos.col() * cellSize + cellSize / 2.0;
@@ -177,7 +196,7 @@ public class BoardView {
             SequentialTransition seq = new SequentialTransition();
             
             // Fade out pieces and line in parallel
-            javafx.animation.ParallelTransition fadeAll = new javafx.animation.ParallelTransition();
+            ParallelTransition fadeAll = new ParallelTransition();
 
             for (Position pos : line.positions()) {
                 Label label = pieceLabels[pos.row()][pos.col()];
@@ -212,6 +231,66 @@ public class BoardView {
 
     public StackPane node() {
         return node;
+    }
+
+    private void animateCellImpact(Position position, PlayerId playerId) {
+        Region impactLayer = impactLayers[position.row()][position.col()];
+        String flashClass = playerId == PlayerId.X ? "cell-impact-x" : "cell-impact-o";
+        impactLayer.getStyleClass().add(flashClass);
+
+        PauseTransition removeFlash = new PauseTransition(IMPACT_FLASH_DURATION);
+        removeFlash.setOnFinished(event -> impactLayer.getStyleClass().remove(flashClass));
+        removeFlash.play();
+    }
+
+    private void showFloatingText(Position position, String text, String styleClass) {
+        Label floating = new Label(text);
+        floating.getStyleClass().addAll("fx-float-label", styleClass);
+        floating.setManaged(false);
+
+        double x = position.col() * cellSize + cellSize / 2.0;
+        double y = position.row() * cellSize + cellSize * 0.45;
+        floating.relocate(x, y);
+
+        overlayPane.getChildren().add(floating);
+
+        javafx.application.Platform.runLater(() -> {
+            double width = floating.prefWidth(Region.USE_COMPUTED_SIZE);
+            double height = floating.prefHeight(Region.USE_COMPUTED_SIZE);
+            floating.relocate(x - width / 2.0, y - height / 2.0);
+
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(90), floating);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+
+            TranslateTransition rise = new TranslateTransition(FLOATING_TEXT_DURATION, floating);
+            rise.setFromY(0.0);
+            rise.setToY(-16.0);
+
+            FadeTransition fadeOut = new FadeTransition(FLOATING_TEXT_DURATION, floating);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+
+            ParallelTransition out = new ParallelTransition(rise, fadeOut);
+            SequentialTransition sequence = new SequentialTransition(fadeIn, out);
+            sequence.setOnFinished(event -> overlayPane.getChildren().remove(floating));
+            sequence.play();
+        });
+    }
+
+    private void applyLineClearHighlight(game.model.Line line) {
+        for (Position pos : line.positions()) {
+            StackPane cell = cellContainers[pos.row()][pos.col()];
+            cell.getStyleClass().add("board-cell-line-clear");
+        }
+
+        PauseTransition removeHighlight = new PauseTransition(LINE_CLEAR_HIGHLIGHT_DURATION);
+        removeHighlight.setOnFinished(event -> {
+            for (Position pos : line.positions()) {
+                cellContainers[pos.row()][pos.col()].getStyleClass().remove("board-cell-line-clear");
+            }
+        });
+        removeHighlight.play();
     }
 
     public void render(GameState state, SkillMode mode, Position pendingFirstClick) {
