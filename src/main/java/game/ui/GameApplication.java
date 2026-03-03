@@ -5,6 +5,7 @@ import game.model.Position;
 import game.model.Line;
 import game.model.PlayerId;
 import game.model.PlayerState;
+import game.engine.GameEngine;
 import game.engine.GameEventListener;
 import game.ui.view.ActionBarView;
 import game.ui.view.BoardView;
@@ -152,7 +153,8 @@ public class GameApplication extends Application implements GameEventListener {
         helpDialog.setGraphic(null);
         helpDialog.setContentText(
                 "XO ENCHANTED 4X4\n\n"
-                        + "Goal: score 3 lines before your opponent.\n\n"
+                        + "Goal: score " + GameEngine.getWinScore() + " lines before your opponent.\n"
+                        + "If no one reaches " + GameEngine.getWinScore() + " by turn " + GameEngine.getMaxTurns() + ", higher score wins (tie triggers sudden death).\n\n"
                         + "- Place pieces on empty cells.\n"
                         + "- A line is any 3 in a row: horizontal, vertical, or diagonal.\n"
                         + "- Scoring clears the selected line and gives your opponent priority (+2 start energy).\n\n"

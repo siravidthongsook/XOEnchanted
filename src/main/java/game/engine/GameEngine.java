@@ -10,8 +10,8 @@ import game.model.CellType;
 import java.util.List;
 
 public class GameEngine {
-    private static final int WIN_SCORE = 3;
-    private static final int MAX_TURNS = 24;
+    private static final int WIN_SCORE = 10;
+    private static final int MAX_TURNS = 35;
     private static final int MAX_ENERGY = 5;
     private static final int DOUBLE_PLACE_COST = 4;
     private static final int OVERHEAT_PENALTY_DROP_TO = 3;
@@ -33,6 +33,14 @@ public class GameEngine {
 
     public GameState getGameState() {
         return gameState;
+    }
+
+    public static int getWinScore() {
+        return WIN_SCORE;
+    }
+
+    public static int getMaxTurns() {
+        return MAX_TURNS;
     }
 
     public void playPlacementTurn(Position position) {
