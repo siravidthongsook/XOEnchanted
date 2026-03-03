@@ -21,21 +21,24 @@ class LineDetectorTest {
         state.setCell(new Position(0, 0), CellType.X);
         state.setCell(new Position(0, 1), CellType.X);
         state.setCell(new Position(0, 2), CellType.X);
+        state.setCell(new Position(0, 3), CellType.X);
 
-        state.setCell(new Position(1, 3), CellType.X);
-        state.setCell(new Position(2, 3), CellType.X);
-        state.setCell(new Position(3, 3), CellType.X);
+        state.setCell(new Position(1, 4), CellType.X);
+        state.setCell(new Position(2, 4), CellType.X);
+        state.setCell(new Position(3, 4), CellType.X);
+        state.setCell(new Position(4, 4), CellType.X);
 
         state.setCell(new Position(1, 0), CellType.X);
         state.setCell(new Position(2, 1), CellType.X);
         state.setCell(new Position(3, 2), CellType.X);
+        state.setCell(new Position(4, 3), CellType.X);
 
         List<Line> lines = LineDetector.detectLines(state, PlayerId.X);
 
         assertEquals(3, lines.size());
-        assertTrue(lines.contains(new Line(new Position(0, 0), new Position(0, 1), new Position(0, 2))));
-        assertTrue(lines.contains(new Line(new Position(1, 3), new Position(2, 3), new Position(3, 3))));
-        assertTrue(lines.contains(new Line(new Position(1, 0), new Position(2, 1), new Position(3, 2))));
+        assertTrue(lines.contains(new Line(new Position(0, 0), new Position(0, 1), new Position(0, 2), new Position(0, 3))));
+        assertTrue(lines.contains(new Line(new Position(1, 4), new Position(2, 4), new Position(3, 4), new Position(4, 4))));
+        assertTrue(lines.contains(new Line(new Position(1, 0), new Position(2, 1), new Position(3, 2), new Position(4, 3))));
     }
 
     @Test
@@ -45,10 +48,12 @@ class LineDetectorTest {
         state.setCell(new Position(0, 0), CellType.X);
         state.setCell(new Position(0, 1), CellType.X);
         state.setCell(new Position(0, 2), CellType.X);
+        state.setCell(new Position(0, 3), CellType.X);
 
         state.setCell(new Position(2, 0), CellType.O);
         state.setCell(new Position(2, 1), CellType.O);
         state.setCell(new Position(2, 2), CellType.O);
+        state.setCell(new Position(2, 3), CellType.O);
 
         assertEquals(1, LineDetector.detectLines(state, PlayerId.X).size());
         assertEquals(1, LineDetector.detectLines(state, PlayerId.O).size());
@@ -57,11 +62,12 @@ class LineDetectorTest {
     @Test
     void resolveSelectedLineClearsAllCellsInTheLine() {
         GameState state = new GameState();
-        Line line = new Line(new Position(1, 0), new Position(1, 1), new Position(1, 2));
+        Line line = new Line(new Position(1, 0), new Position(1, 1), new Position(1, 2), new Position(1, 3));
 
         state.setCell(new Position(1, 0), CellType.O);
         state.setCell(new Position(1, 1), CellType.O);
         state.setCell(new Position(1, 2), CellType.O);
+        state.setCell(new Position(1, 3), CellType.O);
         state.setCell(new Position(0, 0), CellType.X);
 
         LineDetector.resolveSelectedLine(state, line);
@@ -69,6 +75,7 @@ class LineDetectorTest {
         assertEquals(CellType.EMPTY, state.getCell(new Position(1, 0)));
         assertEquals(CellType.EMPTY, state.getCell(new Position(1, 1)));
         assertEquals(CellType.EMPTY, state.getCell(new Position(1, 2)));
+        assertEquals(CellType.EMPTY, state.getCell(new Position(1, 3)));
         assertEquals(CellType.X, state.getCell(new Position(0, 0)));
     }
 }

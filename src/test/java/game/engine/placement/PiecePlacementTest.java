@@ -72,8 +72,10 @@ class PiecePlacementTest {
 
         state.setCell(new Position(1, 0), CellType.X);
         state.setCell(new Position(1, 2), CellType.X);
+        state.setCell(new Position(1, 3), CellType.X);
         state.setCell(new Position(0, 1), CellType.X);
         state.setCell(new Position(2, 1), CellType.X);
+        state.setCell(new Position(3, 1), CellType.X);
 
         engine.playPlacementTurn(new Position(1, 1));
 
@@ -93,12 +95,15 @@ class PiecePlacementTest {
         engine.playPlacementTurn(new Position(0, 1));
         engine.playPlacementTurn(new Position(3, 2));
         engine.playPlacementTurn(new Position(0, 2));
+        engine.playPlacementTurn(new Position(3, 1));
+        engine.playPlacementTurn(new Position(0, 3));
 
         GameState state = engine.getGameState();
         assertEquals(1, state.getPlayerState(PlayerId.X).getScore());
         assertEquals(CellType.EMPTY, state.getCell(new Position(0, 0)));
         assertEquals(CellType.EMPTY, state.getCell(new Position(0, 1)));
         assertEquals(CellType.EMPTY, state.getCell(new Position(0, 2)));
+        assertEquals(CellType.EMPTY, state.getCell(new Position(0, 3)));
         assertTrue(state.getPlayerState(PlayerId.O).isPriorityTurn());
     }
 
@@ -111,6 +116,8 @@ class PiecePlacementTest {
         engine.playPlacementTurn(new Position(0, 1));
         engine.playPlacementTurn(new Position(3, 2));
         engine.playPlacementTurn(new Position(0, 2));
+        engine.playPlacementTurn(new Position(3, 1));
+        engine.playPlacementTurn(new Position(0, 3));
 
         GameState state = engine.getGameState();
         assertFalse(state.isGameOver());

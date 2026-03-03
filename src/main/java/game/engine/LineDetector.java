@@ -45,41 +45,45 @@ public final class LineDetector {
         int n = GameState.BOARD_SIZE;
 
         for (int row = 0; row < n; row++) {
-            for (int col = 0; col <= n - 3; col++) {
+            for (int col = 0; col <= n - 4; col++) {
                 lines.add(new Line(
                         new Position(row, col),
                         new Position(row, col + 1),
-                        new Position(row, col + 2)
+                        new Position(row, col + 2),
+                        new Position(row, col + 3)
                 ));
             }
         }
 
         for (int col = 0; col < n; col++) {
-            for (int row = 0; row <= n - 3; row++) {
+            for (int row = 0; row <= n - 4; row++) {
                 lines.add(new Line(
                         new Position(row, col),
                         new Position(row + 1, col),
-                        new Position(row + 2, col)
+                        new Position(row + 2, col),
+                        new Position(row + 3, col)
                 ));
             }
         }
 
-        for (int row = 0; row <= n - 3; row++) {
-            for (int col = 0; col <= n - 3; col++) {
+        for (int row = 0; row <= n - 4; row++) {
+            for (int col = 0; col <= n - 4; col++) {
                 lines.add(new Line(
                         new Position(row, col),
                         new Position(row + 1, col + 1),
-                        new Position(row + 2, col + 2)
+                        new Position(row + 2, col + 2),
+                        new Position(row + 3, col + 3)
                 ));
             }
         }
 
-        for (int row = 0; row <= n - 3; row++) {
-            for (int col = 2; col < n; col++) {
+        for (int row = 0; row <= n - 4; row++) {
+            for (int col = 3; col < n; col++) {
                 lines.add(new Line(
                         new Position(row, col),
                         new Position(row + 1, col - 1),
-                        new Position(row + 2, col - 2)
+                        new Position(row + 2, col - 2),
+                        new Position(row + 3, col - 3)
                 ));
             }
         }

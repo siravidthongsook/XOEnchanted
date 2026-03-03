@@ -21,8 +21,10 @@ class GameEngineSkillFlowTest {
 
         state.setCell(new Position(0, 1), CellType.X);
         state.setCell(new Position(0, 2), CellType.X);
+        state.setCell(new Position(0, 3), CellType.X);
         state.setCell(new Position(1, 0), CellType.X);
         state.setCell(new Position(2, 0), CellType.X);
+        state.setCell(new Position(3, 0), CellType.X);
 
         engine.playPlacementTurn(new Position(0, 0));
 

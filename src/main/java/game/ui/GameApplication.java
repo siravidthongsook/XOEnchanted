@@ -14,6 +14,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -153,22 +155,50 @@ public class GameApplication extends Application implements GameEventListener {
         helpDialog.setTitle("How To Play");
         helpDialog.setHeaderText(null);
         helpDialog.setGraphic(null);
-        helpDialog.setContentText(
+        String helpText =
                 "XO ENCHANTED " + GameState.BOARD_SIZE + "X" + GameState.BOARD_SIZE + "\n\n"
-                        + "Goal: score " + GameEngine.getWinScore() + " lines before your opponent.\n"
-                        + "If no one reaches " + GameEngine.getWinScore() + " by turn " + GameEngine.getMaxTurns() + ", higher score wins (tie triggers sudden death).\n\n"
-                        + "- Place pieces on empty cells.\n"
-                        + "- A line is any 3 in a row: horizontal, vertical, or diagonal.\n"
-                        + "- Scoring clears the selected line and gives your opponent priority (+2 start energy).\n\n"
-                        + "Skills:\n"
+                        + "Objective\n"
+                        + "- Reach " + GameEngine.getWinScore() + " points before your opponent.\n"
+                        + "- If nobody reaches " + GameEngine.getWinScore() + " by turn " + GameEngine.getMaxTurns() + ", higher score wins.\n"
+                        + "- Same score at turn " + GameEngine.getMaxTurns() + " triggers sudden death.\n\n"
+                        + "Core Rules\n"
+                        + "- Place one piece on an empty cell on your turn.\n"
+                        + "- A line is 4 in a row: horizontal, vertical, or diagonal.\n"
+                        + "- Each cleared line gives 1 point.\n"
+                        + "- If your move creates multiple lines, you must choose one to clear.\n"
+                        + "- Clearing a line gives the opponent Priority on their next turn (+2 start energy).\n\n"
+                        + "Energy\n"
+                        + "- Normal turn start: +1 energy.\n"
+                        + "- Priority turn start: +2 energy instead.\n"
+                        + "- Spend energy to use skills listed below.\n\n"
+                        + "Skills\n"
                         + "- Seal (2): block an empty cell for one opponent placement.\n"
-                        + "- Move (1): move your piece to an empty cell.\n"
+                        + "- Move (1): move one of your pieces to an empty cell.\n"
                         + "- Disrupt (3): remove one opponent piece.\n"
-                        + "- Double Place (4): place two pieces in one turn on non-adjacent cells."
-        );
+                        + "- Double Place (4): place two pieces in one turn on non-adjacent cells.\n\n"
+                        + "Basic Advice\n"
+                        + "- Build two threats at once (row + column, or row + diagonal).\n"
+                        + "- Save energy to swing tempo with Move or Double Place.\n"
+                        + "- Use Seal to deny key fourth cells, not random empty cells.\n"
+                        + "- If the opponent has Priority next turn, defend first.";
+
+        Label helpLabel = new Label(helpText);
+        helpLabel.setWrapText(true);
+        helpLabel.setMaxWidth(Double.MAX_VALUE);
+        helpLabel.getStyleClass().add("help-tutorial-label");
+
+        ScrollPane helpScrollPane = new ScrollPane(helpLabel);
+        helpScrollPane.setFitToWidth(true);
+        helpScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        helpScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        helpScrollPane.setPrefViewportHeight(420);
+        helpScrollPane.getStyleClass().add("help-scroll-pane");
+        helpDialog.getDialogPane().setContent(helpScrollPane);
+
         helpDialog.getDialogPane().getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         helpDialog.getDialogPane().getStyleClass().add("root");
-        helpDialog.getDialogPane().setPrefWidth(560);
+        helpDialog.getDialogPane().setPrefWidth(760);
+        helpDialog.getDialogPane().setPrefHeight(520);
         helpDialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         helpDialog.getButtonTypes().setAll(ButtonType.OK);
         helpDialog.showAndWait();

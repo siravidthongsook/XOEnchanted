@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GameEngineTest {
 
     @Test
-    void precomputedLineCountIsFortyEight() {
-        assertEquals(48, LineDetector.allLines().size());
+    void precomputedLineCountIsTwentyEight() {
+        assertEquals(28, LineDetector.allLines().size());
     }
 
     @Test
@@ -33,6 +33,8 @@ class GameEngineTest {
         state.setCell(new Position(0, 1), CellType.O);
         state.setCell(new Position(1, 2), CellType.O);
         state.setCell(new Position(2, 1), CellType.O);
+        state.setCell(new Position(1, 3), CellType.O);
+        state.setCell(new Position(3, 1), CellType.O);
 
         assertEquals(CellType.SEALED, state.getCell(sealedCell));
 

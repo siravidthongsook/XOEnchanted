@@ -165,7 +165,7 @@ public class BoardView {
 
     public void animateLineClear(game.model.Line line) {
         Position startPos = line.first();
-        Position endPos = line.third();
+        Position endPos = line.fourth();
         
         animatingPositions.addAll(line.positions());
         applyLineClearHighlight(line);
