@@ -93,8 +93,15 @@ public class BoardView {
                 
                 cell.getChildren().addAll(impactLayer, pieceLabel);
                 StackPane.setAlignment(pieceLabel, javafx.geometry.Pos.CENTER);
-                
-                cell.setOnMouseClicked(event -> onCellClicked.accept(targetRow, targetCol));
+
+                cell.setOnMouseClicked(event -> {
+                    Position clickedPos = new Position(targetRow, targetCol);
+                    // ถ้าช่องนี้กำลังเล่นแอนิเมชันแถวแตกอยู่ ให้บล็อกการคลิกไปเลย
+                    if (animatingPositions.contains(clickedPos)) {
+                        return;
+                    }
+                    onCellClicked.accept(targetRow, targetCol);
+                });
                 cell.setOnMouseEntered(event -> handleMouseEntered(targetRow, targetCol));
                 cell.setOnMouseExited(event -> handleMouseExited());
 

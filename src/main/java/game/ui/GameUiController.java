@@ -84,6 +84,10 @@ public class GameUiController implements GameEventListener {
 
         switch (mode) {
             case PLACE:
+                // ดักบัคกดย้ำ: ถ้าช่องไม่ว่าง ให้จบการทำงานเงียบๆ ไม่ต้องส่งให้ Engine
+                if (state().getCell(clickedPos) != game.model.CellType.EMPTY) {
+                    return;
+                }
                 engine.playPlacementTurn(clickedPos);
                 break;
 
