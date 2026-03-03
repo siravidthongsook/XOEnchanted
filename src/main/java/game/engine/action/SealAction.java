@@ -3,7 +3,6 @@ package game.engine.action;
 import game.model.CellType;
 import game.model.GameState;
 import game.model.Position;
-import game.engine.SealLifecycleService;
 
 public class SealAction implements SkillAction {
     private final Position target;
@@ -33,10 +32,7 @@ public class SealAction implements SkillAction {
 
         state.setCell(target, CellType.SEALED);
 
-        // 3. Track expiry: If placed on turn N, it blocks the opponent on turn N+1,
-        // and expires at the end of N+1 (so it expires when totalTurnCount reaches N+2).
-        int expiryTurn = state.getTotalTurnCount() + 2;
-        state.addSeal(target, expiryTurn);
+        state.addSeal(target, state.getCurrentPlayer());
     }
 
     public Position target() {

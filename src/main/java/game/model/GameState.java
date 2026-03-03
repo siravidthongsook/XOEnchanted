@@ -17,7 +17,7 @@ public class GameState {
     private boolean waitingForLineSelection;
     private java.util.List<Line> pendingLines;
     private boolean turnEnded;
-    private final java.util.Map<Position, Integer> activeSeals = new java.util.HashMap<>();
+    private final java.util.Map<Position, PlayerId> activeSeals = new java.util.HashMap<>();
     private final java.util.Set<Position> frozenCells = new java.util.HashSet<>();
     private final java.util.Map<Position, Integer> pieceInactivityCounters = new java.util.HashMap<>();
     private boolean turnStarted = false;
@@ -146,11 +146,11 @@ public class GameState {
         this.turnEnded = turnEnded;
     }
 
-    public void addSeal(Position position, int expiryTurn) {
-        activeSeals.put(position, expiryTurn);
+    public void addSeal(Position position, PlayerId owner) {
+        activeSeals.put(position, owner);
     }
 
-    public java.util.Map<Position, Integer> getActiveSeals() {
+    public java.util.Map<Position, PlayerId> getActiveSeals() {
         return activeSeals;
     }
 

@@ -2,6 +2,7 @@ package game.engine;
 
 import game.model.CellType;
 import game.model.GameState;
+import game.model.PlayerId;
 import game.model.Position;
 
 import java.util.ArrayList;
@@ -10,11 +11,16 @@ import java.util.Map;
 
 public class SealLifecycleService {
     public void updateAtEndOfTurn(GameState state) {
-        List<Position> expiredSeals = new ArrayList<>();
+        // Seals now expire on opponent placement, handled by updateAfterPlacement.
+    }
 
-        // Find which seals have reached their expiry turn
-        for (Map.Entry<Position, Integer> entry : state.getActiveSeals().entrySet()) {
-            if (state.getTotalTurnCount() >= entry.getValue()) {
+    public void updateAfterPlacement(GameState state) {
+        List<Position> expiredSeals = new ArrayList<>();
+        PlayerId actor = state.getCurrentPlayer();
+
+        // Seals placed by the opponent of the actor expire right after the actor places.
+        for (Map.Entry<Position, PlayerId> entry : state.getActiveSeals().entrySet()) {
+            if (entry.getValue() == actor.opponent()) {
                 expiredSeals.add(entry.getKey());
             }
         }

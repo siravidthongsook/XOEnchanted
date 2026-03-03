@@ -42,6 +42,10 @@ public class GameEngine {
         PlayerId actor = gameState.getCurrentPlayer();
         PlayerState actorState = gameState.getPlayerState(actor);
 
+        if (gameState.getCell(position) != CellType.EMPTY) {
+            throw new IllegalArgumentException("Cell is not empty");
+        }
+
         startTurnGainEnergy(actorState);
         gameState.placePiece(position, actor);
         if (eventListener != null) {
@@ -49,6 +53,7 @@ public class GameEngine {
         }
 
         boolean scored = resolveScoring(actor, actorState);
+        sealLifecycleService.updateAfterPlacement(gameState);
 
         if (!gameState.isWaitingForLineSelection()) {
             endTurn(actor, scored);
@@ -169,6 +174,7 @@ public class GameEngine {
 
         // 3. Resolve Scoring (since pieces were added to the board)
         boolean scored = resolveScoring(actor, actorState);
+        sealLifecycleService.updateAfterPlacement(gameState);
 
         // 4. End the turn (unless we are waiting for the player to select a line to clear)
         if (!gameState.isWaitingForLineSelection()) {

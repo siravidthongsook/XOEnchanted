@@ -133,7 +133,8 @@ public class GameApplication extends Application implements GameEventListener {
 
         boardView.render(state, controller.mode(), controller.getPendingFirstClick());
         hudView.render(state, controller.mode());
-        actionBarView.render(controller.mode(), state.isGameOver());
+        int currentEnergy = state.getPlayerState(state.getCurrentPlayer()).getEnergy();
+        actionBarView.render(controller.mode(), state.isGameOver(), currentEnergy);
 
         if (state.isGameOver() || state.isSuddenDeath()) {
             return;

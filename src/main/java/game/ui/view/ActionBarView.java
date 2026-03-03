@@ -5,6 +5,11 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 
 public class ActionBarView {
+    private static final int SEAL_COST = 2;
+    private static final int SHIFT_COST = 2;
+    private static final int DISRUPT_COST = 3;
+    private static final int DOUBLE_PLACE_COST = 4;
+
     private final HBox node;
     private final Button sealButton;
     private final Button shiftButton;
@@ -19,10 +24,10 @@ public class ActionBarView {
             Runnable onDoublePlace,
             Runnable onReset
     ) {
-        this.sealButton = new Button("Seal");
-        this.shiftButton = new Button("Shift");
-        this.disruptButton = new Button("Disrupt");
-        this.doublePlaceButton = new Button("Double Place");
+        this.sealButton = new Button("Seal (" + SEAL_COST + ")");
+        this.shiftButton = new Button("Shift (" + SHIFT_COST + ")");
+        this.disruptButton = new Button("Disrupt (" + DISRUPT_COST + ")");
+        this.doublePlaceButton = new Button("Double Place (" + DOUBLE_PLACE_COST + ")");
         this.resetGameButton = new Button("Reset Game");
 
         sealButton.setOnAction(event -> onSeal.run());
@@ -35,11 +40,16 @@ public class ActionBarView {
         this.node.getStyleClass().add("action-bar");
     }
 
-    public void render(SkillMode mode, boolean gameOver) {
+    public void render(SkillMode mode, boolean gameOver, int currentEnergy) {
         setSkillSelected(sealButton, mode == SkillMode.SEAL);
         setSkillSelected(shiftButton, mode == SkillMode.SHIFT);
         setSkillSelected(disruptButton, mode == SkillMode.DISRUPT);
         setSkillSelected(doublePlaceButton, mode == SkillMode.DOUBLE_PLACE);
+
+        sealButton.setDisable(currentEnergy < SEAL_COST);
+        shiftButton.setDisable(currentEnergy < SHIFT_COST);
+        disruptButton.setDisable(currentEnergy < DISRUPT_COST);
+        doublePlaceButton.setDisable(currentEnergy < DOUBLE_PLACE_COST);
 
         setButtonVisible(sealButton, !gameOver);
         setButtonVisible(shiftButton, !gameOver);

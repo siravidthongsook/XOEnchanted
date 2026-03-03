@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -91,6 +92,84 @@ class GameEngineTest {
 
         assertTrue(state.isGameOver());
         assertNull(state.getWinner());
+    }
+
+    @Test
+    void sealExpiresImmediatelyAfterOpponentPlacementEvenWhenLineSelectionIsPending() {
+        GameEngine engine = new GameEngine();
+        GameState state = engine.getGameState();
+
+        state.getPlayerState(PlayerId.X).gainEnergy(2);
+
+        Position sealedCell = new Position(3, 0);
+        engine.useSealSkill(sealedCell);
+        engine.playPlacementTurn(new Position(0, 0));
+
+        state.setCell(new Position(1, 0), CellType.O);
+        state.setCell(new Position(0, 1), CellType.O);
+        state.setCell(new Position(1, 2), CellType.O);
+        state.setCell(new Position(2, 1), CellType.O);
+
+        assertEquals(CellType.SEALED, state.getCell(sealedCell));
+
+        engine.playPlacementTurn(new Position(1, 1));
+
+        assertTrue(state.isWaitingForLineSelection());
+        assertEquals(CellType.EMPTY, state.getCell(sealedCell));
+        assertFalse(state.getActiveSeals().containsKey(sealedCell));
+    }
+
+    @Test
+    void sealExpiresAfterOpponentRegularPlacement() {
+        GameEngine engine = new GameEngine();
+        GameState state = engine.getGameState();
+
+        state.getPlayerState(PlayerId.X).gainEnergy(2);
+
+        Position sealedCell = new Position(3, 0);
+        engine.useSealSkill(sealedCell);
+        engine.playPlacementTurn(new Position(0, 0));
+
+        assertEquals(CellType.SEALED, state.getCell(sealedCell));
+
+        engine.playPlacementTurn(new Position(1, 0));
+
+        assertEquals(CellType.EMPTY, state.getCell(sealedCell));
+        assertFalse(state.getActiveSeals().containsKey(sealedCell));
+    }
+
+    @Test
+    void sealDoesNotExpireAfterOwnerPlacement() {
+        GameEngine engine = new GameEngine();
+        GameState state = engine.getGameState();
+
+        state.getPlayerState(PlayerId.X).gainEnergy(2);
+
+        Position sealedCell = new Position(3, 0);
+        engine.useSealSkill(sealedCell);
+        engine.playPlacementTurn(new Position(0, 0));
+
+        assertEquals(CellType.SEALED, state.getCell(sealedCell));
+        assertTrue(state.getActiveSeals().containsKey(sealedCell));
+    }
+
+    @Test
+    void invalidPlacementOnSealedCellDoesNotGrantTurnStartEnergy() {
+        GameEngine engine = new GameEngine();
+        GameState state = engine.getGameState();
+
+        state.getPlayerState(PlayerId.X).gainEnergy(2);
+        Position sealedCell = new Position(0, 0);
+        engine.useSealSkill(sealedCell);
+
+        assertEquals(0, state.getPlayerState(PlayerId.X).getEnergy());
+
+        assertThrows(IllegalArgumentException.class, () -> engine.playPlacementTurn(sealedCell));
+
+        assertEquals(0, state.getPlayerState(PlayerId.X).getEnergy());
+
+        engine.playPlacementTurn(new Position(0, 1));
+        assertEquals(1, state.getPlayerState(PlayerId.X).getEnergy());
     }
 
     private static void preloadBoardLeavingOneCell(GameState state) {
