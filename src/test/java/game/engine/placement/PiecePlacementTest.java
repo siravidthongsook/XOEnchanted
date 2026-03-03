@@ -89,7 +89,7 @@ class PiecePlacementTest {
         GameEngine engine = new GameEngine();
 
         engine.playPlacementTurn(new Position(0, 0));
-        engine.playPlacementTurn(new Position(3, 3));
+        engine.playPlacementTurn(new Position(GameState.BOARD_SIZE - 1, GameState.BOARD_SIZE - 1));
         engine.playPlacementTurn(new Position(0, 1));
         engine.playPlacementTurn(new Position(3, 2));
         engine.playPlacementTurn(new Position(0, 2));
@@ -107,7 +107,7 @@ class PiecePlacementTest {
         GameEngine engine = new GameEngine();
 
         engine.playPlacementTurn(new Position(0, 0));
-        engine.playPlacementTurn(new Position(3, 3));
+        engine.playPlacementTurn(new Position(GameState.BOARD_SIZE - 1, GameState.BOARD_SIZE - 1));
         engine.playPlacementTurn(new Position(0, 1));
         engine.playPlacementTurn(new Position(3, 2));
         engine.playPlacementTurn(new Position(0, 2));
@@ -125,7 +125,7 @@ class PiecePlacementTest {
         state.getPlayerState(PlayerId.X).addScore(2);
         state.getPlayerState(PlayerId.O).addScore(1);
 
-        engine.playPlacementTurn(new Position(3, 3));
+        engine.playPlacementTurn(new Position(GameState.BOARD_SIZE - 1, GameState.BOARD_SIZE - 1));
 
         assertTrue(state.isGameOver());
         assertEquals(PlayerId.X, state.getWinner());
@@ -140,29 +140,19 @@ class PiecePlacementTest {
         state.getPlayerState(PlayerId.X).addScore(1);
         state.getPlayerState(PlayerId.O).addScore(1);
 
-        engine.playPlacementTurn(new Position(3, 3));
+        engine.playPlacementTurn(new Position(GameState.BOARD_SIZE - 1, GameState.BOARD_SIZE - 1));
 
         assertTrue(state.isGameOver());
         assertNull(state.getWinner());
     }
 
     private static void preloadBoardLeavingOneCell(GameState state) {
-        String[] rows = {
-                "XXOX",
-                "XXOX",
-                "OOOO",
-                "XXO."
-        };
-
-        for (int row = 0; row < rows.length; row++) {
-            for (int col = 0; col < rows[row].length(); col++) {
-                char cell = rows[row].charAt(col);
-                Position position = new Position(row, col);
-                if (cell == 'X') {
-                    state.setCell(position, CellType.X);
-                } else if (cell == 'O') {
-                    state.setCell(position, CellType.O);
+        for (int row = 0; row < GameState.BOARD_SIZE; row++) {
+            for (int col = 0; col < GameState.BOARD_SIZE; col++) {
+                if (row == GameState.BOARD_SIZE - 1 && col == GameState.BOARD_SIZE - 1) {
+                    continue;
                 }
+                state.setCell(new Position(row, col), CellType.O);
             }
         }
     }

@@ -4,7 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class GameState {
-    public static final int BOARD_SIZE = 4;
+    public static final int BOARD_SIZE = 5;
 
     private final CellType[][] board;
     private final Map<PlayerId, PlayerState> playerStates;

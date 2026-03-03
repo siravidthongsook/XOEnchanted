@@ -80,6 +80,8 @@ public class BoardView {
 
                 Label pieceLabel = new Label();
                 pieceLabel.getStyleClass().add("piece-label");
+                int pieceFontSize = Math.max(40, (int) Math.round(cellSize * 0.64));
+                pieceLabel.setStyle("-fx-font-size: " + pieceFontSize + "px;");
                 pieceLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                 pieceLabel.setAlignment(javafx.geometry.Pos.CENTER);
 
