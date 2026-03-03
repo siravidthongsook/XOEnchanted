@@ -88,6 +88,12 @@ public class GameUiController implements GameEventListener {
                 break;
 
             case SEAL:
+                if (state().getPlayerState(state().getCurrentPlayer()).getEnergy() < 2) {
+                    throw new IllegalArgumentException("Seal requires at least 2 energy.");
+                }
+                if (state().getCell(clickedPos) != game.model.CellType.EMPTY) {
+                    throw new IllegalArgumentException("Seal target must be an empty cell.");
+                }
                 engine.useSealSkill(clickedPos);
                 setMode(SkillMode.PLACE);
                 break;

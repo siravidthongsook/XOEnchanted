@@ -133,6 +133,10 @@
     -fx-background-color: #222222;
 }
 
+.board-cell-skill-target {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+}
+
 .board-cell-highlight {
     -fx-background-color: rgba(0, 255, 255, 0.1);
     -fx-border-color: cyan !important;

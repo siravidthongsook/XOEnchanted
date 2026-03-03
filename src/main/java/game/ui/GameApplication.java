@@ -92,7 +92,7 @@ public class GameApplication extends Application implements GameEventListener {
     }
 
     private void onSealSelected() {
-        toggleSkillMode(SkillMode.SEAL, "TODO implement Seal target flow");
+        toggleSkillMode(SkillMode.SEAL, "Seal: select an empty cell (cost 2 energy)");
         refreshView();
     }
 
@@ -131,7 +131,7 @@ public class GameApplication extends Application implements GameEventListener {
     private void refreshView() {
         GameState state = controller.state();
 
-        boardView.render(state, controller.getPendingFirstClick());
+        boardView.render(state, controller.mode(), controller.getPendingFirstClick());
         hudView.render(state, controller.mode());
         actionBarView.render(controller.mode(), state.isGameOver());
 
@@ -139,7 +139,9 @@ public class GameApplication extends Application implements GameEventListener {
             return;
         }
 
-        if (controller.mode() == SkillMode.SHIFT || controller.mode() == SkillMode.DOUBLE_PLACE) {
+        if (controller.mode() == SkillMode.SEAL) {
+            hudView.showStatus("Seal: select an empty cell (cost 2 energy)");
+        } else if (controller.mode() == SkillMode.SHIFT || controller.mode() == SkillMode.DOUBLE_PLACE) {
             if (controller.getPendingFirstClick() == null) {
                 hudView.showStatus("Select first target for " + controller.mode());
             } else {

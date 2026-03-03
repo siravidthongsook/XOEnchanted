@@ -4,6 +4,7 @@ import game.model.CellType;
 import game.model.GameState;
 import game.model.Position;
 import game.model.PlayerId;
+import game.ui.SkillMode;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
@@ -213,7 +214,7 @@ public class BoardView {
         return node;
     }
 
-    public void render(GameState state, Position pendingFirstClick) {
+    public void render(GameState state, SkillMode mode, Position pendingFirstClick) {
         this.currentPendingLines = state.isWaitingForLineSelection() ? state.getPendingLines() : null;
         for (int row = 0; row < GameState.BOARD_SIZE; row++) {
             for (int col = 0; col < GameState.BOARD_SIZE; col++) {
@@ -235,11 +236,15 @@ public class BoardView {
                 cell.setDisable(state.isGameOver());
 
                 // Clear state-specific CSS classes before reapplying them
-                cell.getStyleClass().removeAll("board-cell-sealed", "board-cell-selected");
+                cell.getStyleClass().removeAll("board-cell-sealed", "board-cell-selected", "board-cell-skill-target");
 
                 // Apply Sealed style
                 if (cellType == CellType.SEALED) {
                     cell.getStyleClass().add("board-cell-sealed");
+                }
+
+                if (mode == SkillMode.SEAL && cellType == CellType.EMPTY) {
+                    cell.getStyleClass().add("board-cell-skill-target");
                 }
 
                 // Apply Pending First Click style
