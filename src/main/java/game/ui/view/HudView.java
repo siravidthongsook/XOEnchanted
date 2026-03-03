@@ -83,6 +83,7 @@ public class HudView {
         this.legendNode.setAlignment(Pos.CENTER);
         this.legendNode.setPadding(new Insets(10, 0, 0, 0));
         this.legendNode.setVisible(false);
+        this.legendNode.setMouseTransparent(true);
 
         this.node = new VBox(20,
                 titleLabel,
