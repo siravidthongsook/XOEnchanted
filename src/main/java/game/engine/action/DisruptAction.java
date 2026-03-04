@@ -4,6 +4,9 @@ import game.model.CellType;
 import game.model.GameState;
 import game.model.Position;
 
+/**
+ * Skill action that removes an opponent piece at a fixed energy cost.
+ */
 public class DisruptAction implements SkillAction {
     private static final int COST = 3; // Updated to 3 Energy
     private final Position target;

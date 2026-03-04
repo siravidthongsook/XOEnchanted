@@ -4,6 +4,9 @@ import game.model.CellType;
 import game.model.GameState;
 import game.model.Position;
 
+/**
+ * Skill action that moves one of the current player's pieces to an empty cell.
+ */
 public class MoveAction implements SkillAction {
     private static final int COST = 1;
     private final Position from;

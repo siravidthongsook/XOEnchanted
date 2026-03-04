@@ -8,6 +8,9 @@ import game.model.Position;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Applies the frozen piece rule by tracking inactivity and freezing or thawing pieces.
+ */
 public class FrozenRuleService {
     // Change this number to whatever your game's rule requires!
     private static final int INACTIVITY_THRESHOLD = 3;

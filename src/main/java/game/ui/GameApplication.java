@@ -30,6 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * JavaFX application that wires the UI, audio, and game events together.
+ */
 public class GameApplication extends Application implements GameEventListener {
     private static final int BASE_CELL_SIZE = 100;
     private static final int MAX_ENERGY = 5;

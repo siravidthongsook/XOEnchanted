@@ -9,6 +9,9 @@ import game.model.CellType;
 
 import java.util.List;
 
+/**
+ * Core game rules engine that executes turns, scoring, and skill usage.
+ */
 public class GameEngine {
     private static final int WIN_SCORE = 10;
     private static final int MAX_TURNS = 35;

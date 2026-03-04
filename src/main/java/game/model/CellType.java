@@ -1,5 +1,8 @@
 package game.model;
 
+/**
+ * Enumerates the possible contents of a board cell.
+ */
 public enum CellType {
     EMPTY,
     X,

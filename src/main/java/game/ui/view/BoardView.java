@@ -23,6 +23,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Pane;
 import java.util.function.BiConsumer;
 
+/**
+ * Renders the board grid and plays placement and line clear animations.
+ */
 public class BoardView {
     private final StackPane[][] cellContainers;
     private final Region[][] impactLayers;

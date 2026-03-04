@@ -4,6 +4,9 @@ import game.model.GameState;
 import game.model.PlayerId;
 import game.model.PlayerState;
 
+/**
+ * Tracks overheat counters and applies energy penalties for hoarding.
+ */
 public class OverheatRuleService {
     private static final int OVERHEAT_ENERGY_LEVEL = 5;
     private static final int PENALTY_DROP_TO = 3;

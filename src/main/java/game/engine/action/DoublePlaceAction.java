@@ -6,6 +6,9 @@ import game.model.Position;
 
 import static java.lang.Math.abs;
 
+/**
+ * Skill action that places two non-adjacent pieces for an energy cost.
+ */
 public class DoublePlaceAction implements SkillAction {
     private static final int COST = 4; // Updated to 4 Energy
     private final Position first;

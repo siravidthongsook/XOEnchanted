@@ -4,6 +4,9 @@ import game.ui.SkillMode;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 
+/**
+ * Renders the action bar buttons for skills and help/reset actions.
+ */
 public class ActionBarView {
     private static final int SEAL_COST = 2;
     private static final int MOVE_COST = 1;

@@ -9,6 +9,9 @@ import game.model.Position;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility for detecting and resolving four-in-a-row lines on the board.
+ */
 public final class LineDetector {
     private static final List<Line> ALL_LINES = precomputeLines();
 

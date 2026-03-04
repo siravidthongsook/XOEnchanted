@@ -1,6 +1,9 @@
 import game.ui.GameApplication;
 import javafx.application.Application;
 
+/**
+ * Application entry point that launches the JavaFX game UI.
+ */
 public final class Main {
     private Main() {
     }

@@ -10,6 +10,9 @@ import game.model.PlayerId;
 import java.util.Objects;
 import java.util.List;
 
+/**
+ * UI controller that routes input to the game engine and forwards events.
+ */
 public class GameUiController implements GameEventListener {
     private GameEngine engine;
     private SkillMode mode;

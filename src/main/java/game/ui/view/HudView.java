@@ -11,7 +11,13 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 
+/**
+ * Heads-up display for game status, scores, energy, and legends.
+ */
 public class HudView {
+    /**
+     * Simple text/style pair for legend rendering.
+     */
     private static final class LegendSegment {
         private final String text;
         private final String styleClass;

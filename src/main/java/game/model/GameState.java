@@ -3,6 +3,9 @@ package game.model;
 import java.util.EnumMap;
 import java.util.Map;
 
+/**
+ * Mutable container for board, player, and turn state.
+ */
 public class GameState {
     public static final int BOARD_SIZE = 5;
 

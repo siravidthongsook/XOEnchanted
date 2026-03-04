@@ -4,6 +4,9 @@ import game.model.CellType;
 import game.model.GameState;
 import game.model.Position;
 
+/**
+ * Skill action that seals an empty cell for one opponent placement.
+ */
 public class SealAction implements SkillAction {
     private final Position target;
 

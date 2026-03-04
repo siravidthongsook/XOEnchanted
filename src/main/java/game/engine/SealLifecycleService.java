@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles seal expiration after opponent placements.
+ */
 public class SealLifecycleService {
     public void updateAtEndOfTurn(GameState state) {
         // Seals now expire on opponent placement, handled by updateAfterPlacement.

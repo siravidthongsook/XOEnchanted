@@ -1,5 +1,8 @@
 package game.model;
 
+/**
+ * Tracks score, energy, and turn modifiers for a single player.
+ */
 public class PlayerState {
     private static final int MAX_ENERGY = 5;
 
