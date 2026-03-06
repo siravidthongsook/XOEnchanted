@@ -46,9 +46,9 @@ gradle run
 - **CSS**: For styling UI elements within the game.
 - 
 ## Documentation References
-- **JavaDoc Documentation**: [Link to JavaDoc](https://example.com/javadoc)
-- **User Manual**: [Link to User Manual](https://example.com/manual)
-- **UML Diagram**: ![UML Diagram](https://example.com/uml-diagram.png)
+- **JavaDoc Documentation**: [Link to JavaDoc](doc/javadoc/index.html)
+- **User Manual**: [Link to User Manual](doc/X0_Enchanted_5x5_Program_User_Manual.pdf)
+- **UML Diagram**: ![UML Diagram](src/main/resources/uml.png)
 
 ## Development Notes
 - For collaborative development, ensure to follow the branching strategy as outlined in the contributing guide.  
